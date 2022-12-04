@@ -3,12 +3,29 @@ import { tcp } from '@libp2p/tcp'
 import { mplex } from '@libp2p/mplex'
 import { noise } from '@chainsafe/libp2p-noise'
 import { gossipsub } from '@chainsafe/libp2p-gossipsub'
-import { bootstrap } from '@libp2p/bootstrap'
-import { pubsubPeerDiscovery } from '@libp2p/pubsub-peer-discovery'
+import { kadDHT } from '@libp2p/kad-dht'
+import { createFromJSON } from '@libp2p/peer-id-factory'
+import { multiaddr } from 'multiaddr'
+//import { mdns } from '@libp2p/mdns'
+//import { bootstrap } from '@libp2p/bootstrap'
+//import { pubsubPeerDiscovery } from '@libp2p/pubsub-peer-discovery'
 import fs from 'fs'
+import { createHash } from 'crypto'
+import express from 'express'
+import { CID } from 'multiformats/cid'
+import all from 'it-all'
 
-const createNode = async (bootstrapers) => {
-  const node = await createLibp2p({
+/*console.log(process.argv[2])
+const usernameHashed = createHash('md5').update(process.argv[2]).digest('hex');
+console.log(usernameHashed)
+const cid = CID.parse(usernameHashed)
+console.log(cid)*/
+
+const app = express();
+app.use(express.json());
+
+const createNode = () => {
+  return createLibp2p({
     addresses: {
       listen: ['/ip4/0.0.0.0/tcp/0']
     },
@@ -22,32 +39,35 @@ const createNode = async (bootstrapers) => {
       noise()
     ],
     pubsub: gossipsub({ allowPublishToZeroPeers: true }),
-    peerDiscovery: [
-      bootstrap({
-        interval: 60e3,
-        list: bootstrapers
-      }),
-      pubsubPeerDiscovery({
-        interval: 1000
-      })
-    ]
+    dht: kadDHT({ enabled: true, randomWalk: { enabled: true } }),
   })
-
-  return node
 }
 
-const relayMultiaddrs = []
+const node = await createNode();
 
-fs.readFileSync('../bootstrap/relayMultiaddrs.txt', 'utf8').split(',').forEach((bootstraper) => {
-  relayMultiaddrs.push(bootstraper);
-});
+const boostrapersIDs = JSON.parse(fs.readFileSync('./bootstrapers.json', 'utf8')).bootstrapers;
 
-const node = await createNode(relayMultiaddrs);
-
-node.addEventListener('peer:discovery', (evt) => {
-  console.log(`Peer ${node.peerId.toString()} discovered: ${evt.detail.id.toString()}`)
-})
+for (const boostraper of boostrapersIDs) {
+  const peerID = await createFromJSON({id: boostraper.id});
+  const boostraperMultiaddrs = boostraper.multiaddrs.map((multiaddr_) => multiaddr(multiaddr_));
+  await node.peerStore.addressBook.add(peerID, boostraperMultiaddrs);
+}
 
 console.log(`Node starting with id: ${node.peerId.toString()}`)
 
 await node.start()
+
+console.log(`Node started with id: ${node.peerId.toString()}`)
+
+node.addEventListener('peer:discovery', (peer) => {
+  console.log(`Discovered: ${peer.detail.id.toString()}`)
+})
+
+/*
+app.post('/sub', subHandler)
+app.post('/unsub', unsubHandler)
+app.post('/pub', pubHandler)
+
+app.listen(PORT, () => {
+  console.log(`Backend listening on ${node.getMultiaddrs().at(-1)}`);
+});*/

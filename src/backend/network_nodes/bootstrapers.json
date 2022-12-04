@@ -1,0 +1,28 @@
+{
+    "bootstrapers": [
+        {
+            "id": "QmVVP9rWw5yLCbZVQzoDSUZrz7VcS14TQ3GL2X5yXqqcPb",
+            "multiaddrs": [
+                "/ip4/172.22.32.1/tcp/8130/p2p/QmVVP9rWw5yLCbZVQzoDSUZrz7VcS14TQ3GL2X5yXqqcPb",
+                "/ip4/192.168.1.73/tcp/8130/p2p/QmVVP9rWw5yLCbZVQzoDSUZrz7VcS14TQ3GL2X5yXqqcPb",
+                "/ip4/127.0.0.1/tcp/8130/p2p/QmVVP9rWw5yLCbZVQzoDSUZrz7VcS14TQ3GL2X5yXqqcPb"
+            ]
+        },
+        {
+            "id": "QmTv6dFFFhtUB37tJDuFghRkvGfP9CDfYC77sBVnAHmrU2",
+            "multiaddrs": [
+                "/ip4/172.22.32.1/tcp/8131/p2p/QmTv6dFFFhtUB37tJDuFghRkvGfP9CDfYC77sBVnAHmrU2",
+                "/ip4/192.168.1.73/tcp/8131/p2p/QmTv6dFFFhtUB37tJDuFghRkvGfP9CDfYC77sBVnAHmrU2",
+                "/ip4/127.0.0.1/tcp/8131/p2p/QmTv6dFFFhtUB37tJDuFghRkvGfP9CDfYC77sBVnAHmrU2"
+            ]
+        },
+        {
+            "id": "QmcMhtRvVXPtLzRuGUjrrUGeALfCPPPxG3uxXWdBX7qd8q",
+            "multiaddrs": [
+                "/ip4/172.22.32.1/tcp/8132/p2p/QmcMhtRvVXPtLzRuGUjrrUGeALfCPPPxG3uxXWdBX7qd8q",
+                "/ip4/192.168.1.73/tcp/8132/p2p/QmcMhtRvVXPtLzRuGUjrrUGeALfCPPPxG3uxXWdBX7qd8q",
+                "/ip4/127.0.0.1/tcp/8132/p2p/QmcMhtRvVXPtLzRuGUjrrUGeALfCPPPxG3uxXWdBX7qd8q"
+            ]
+        }
+    ]
+}

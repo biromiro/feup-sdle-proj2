@@ -5,21 +5,19 @@ import { noise } from '@chainsafe/libp2p-noise'
 import { gossipsub } from '@chainsafe/libp2p-gossipsub'
 import { kadDHT } from '@libp2p/kad-dht'
 import { createFromJSON } from '@libp2p/peer-id-factory'
-import { createDiffieHellman } from 'crypto';
 //import { mdns } from '@libp2p/mdns'
 //import { bootstrap } from '@libp2p/bootstrap'
 //import { pubsubPeerDiscovery } from '@libp2p/pubsub-peer-discovery'
 import fs from 'fs'
 
-const peerIDVal = JSON.parse(fs.readFileSync(`./keys/${process.argv[2]}.json`, 'utf8'));
+const bootstrapVals = JSON.parse(fs.readFileSync(`./keys/${process.argv[2]}.json`, 'utf8'));
 
-const peerID = await createFromJSON(peerIDVal)
-
+const peerID = await createFromJSON(bootstrapVals.peerID)
 
 const bootstrap = await createLibp2p({
   peerId: peerID,
   addresses: {
-    listen: ['/ip4/0.0.0.0/tcp/0']
+    listen: [`/ip4/0.0.0.0/tcp/${bootstrapVals.port}`]
   },
   transports: [
     tcp()
