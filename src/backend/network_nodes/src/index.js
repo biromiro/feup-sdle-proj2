@@ -12,8 +12,38 @@ import { CID } from 'multiformats/cid'
 import * as json from 'multiformats/codecs/json'
 import { sha256 } from 'multiformats/hashes/sha2'
 import delay from 'delay'
+import { fromString as arrayFromString } from "uint8arrays/from-string";
+import { toString as arrayToString } from "uint8arrays/to-string";
+import all from 'it-all'
+import { pipe } from 'it-pipe'
+import * as lp from 'it-length-prefixed'
+import map from 'it-map'
 
 const curr_username = process.argv[2]
+
+const readStream = async function(stream) {
+  let res = []
+  await pipe(
+    stream.source,
+    lp.decode(),
+    (source) => map(source, (buf) => arrayToString(buf.subarray())),
+    async function(source) {
+      for await (const msg of source) {
+        res.push(msg)
+      }
+    }
+  )
+  return res
+}
+
+const writeStream = async function(stream, message) {
+  await pipe(
+    [message],
+    (source) => map(source, (string) => arrayFromString(string)),
+    lp.encode(),
+    stream.sink
+  )
+}
 
 const getCID = async (data) => {
   const bytes = json.encode({ username: data })
@@ -70,7 +100,15 @@ node.addEventListener('peer:discovery', (peer) => {
 })
 
 node.pubsub.addEventListener("message", (evt) => {
-  console.log(`Node ${node.peerId.toString()} received message on topic ${evt.detail.topic}: ${evt.detail.data}`)
+  console.log(`Node ${node.peerId.toString()} received message on topic ${evt.detail.topic}: ${arrayToString(evt.detail.data)}`)
+})
+
+node.handle("/username", async ({ stream }) => {
+  let username = await readStream(stream)
+  if(username == curr_username)
+    await writeStream(stream, JSON.stringify({data: `Yes, I'm (${curr_username}) and this is my very secret password - (${process.argv[3]}):)`, status: 200}))
+  else
+    await writeStream(stream, JSON.stringify({data: `No, this is not my username (${curr_username}) :(`, status: 404}))
 })
 
 
@@ -127,12 +165,31 @@ app.get("/publish", function (req, res) {
     res.send("No data provided");
     return;
   }
-  node.pubsub.publish(topic, data)
+  node.pubsub.publish(topic, arrayFromString(data))
   res.send("Published to topic " + topic);
 });
 
-app.get("/username", function (req, res) {
-  res.send(curr_username);
+app.get("/username/:username", async function (req, res) {
+  let username = req.params.username;
+  let cid = await getCID(username)
+
+  const providers = await all(node.contentRouting.findProviders(cid, { timeout: 3000, maxNumProviders: 5 }))
+  for (let provider of providers) {
+    try {
+      const stream = await node.dialProtocol(provider.id, ['/username'])
+      await writeStream(stream, username)
+      const confStream = await readStream(stream)
+      let conf = JSON.parse(confStream)
+      if(!conf || conf.err)
+        continue
+      res.send(conf.data)
+      return
+    } catch (error) {
+      continue
+    }
+  }
+  
+  res.send("No user found with username " + username);
 });
 
 app.listen(app.get('port'), function () {
