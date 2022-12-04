@@ -3,40 +3,41 @@ import { tcp } from '@libp2p/tcp'
 import { mplex } from '@libp2p/mplex'
 import { noise } from '@chainsafe/libp2p-noise'
 import { gossipsub } from '@chainsafe/libp2p-gossipsub'
-import { floodsub } from '@libp2p/floodsub'
-import { pubsubPeerDiscovery } from '@libp2p/pubsub-peer-discovery'
+import { kadDHT } from '@libp2p/kad-dht'
+import { createFromJSON } from '@libp2p/peer-id-factory'
+import { createDiffieHellman } from 'crypto';
+//import { mdns } from '@libp2p/mdns'
+//import { bootstrap } from '@libp2p/bootstrap'
+//import { pubsubPeerDiscovery } from '@libp2p/pubsub-peer-discovery'
 import fs from 'fs'
 
-const relay = await createLibp2p({
+const peerIDVal = JSON.parse(fs.readFileSync(`./keys/${process.argv[2]}.json`, 'utf8'));
+
+const peerID = await createFromJSON(peerIDVal)
+
+
+const bootstrap = await createLibp2p({
+  peerId: peerID,
   addresses: {
-    listen: [
-      '/ip4/0.0.0.0/tcp/0'
-    ]
+    listen: ['/ip4/0.0.0.0/tcp/0']
   },
-  transports: [tcp()],
-  streamMuxers: [mplex()],
-  connectionEncryption: [noise()],
-  pubsub: gossipsub({ allowPublishToZeroPeers: true }),
-  peerDiscovery: [
-    pubsubPeerDiscovery({
-      interval: 1000
-    })
+  transports: [
+    tcp()
   ],
-  relay: {
-    enabled: true, // Allows you to dial and accept relayed connections. Does not make you a relay.
-    hop: {
-      enabled: true // Allows you to be a relay for other peers
-    }
-  }
+  streamMuxers: [
+    mplex()
+  ],
+  connectionEncryption: [
+    noise()
+  ],
+  pubsub: gossipsub({ allowPublishToZeroPeers: true }),
+  dht: kadDHT({ enabled: true, randomWalk: { enabled: true } }),
 })
 
-console.log(`libp2p relay starting with id: ${relay.peerId.toString()}`)
+console.log(`libp2p bootstrap starting with id: ${bootstrap.peerId.toString()}`)
 
-await relay.start()
+await bootstrap.start()
 
-const relayMultiaddrs = relay.getMultiaddrs().toString()
+const bootstrapMultiaddrs = bootstrap.getMultiaddrs()
 
-fs.writeFile('relayMultiaddrs.txt', relayMultiaddrs, function (err) {
-  if (err) return console.log(err);
-  console.log('Saved Relay Multiaddrs!');
-});
+console.log(`Bootstrap Multiaddrs: ${bootstrapMultiaddrs}`)
