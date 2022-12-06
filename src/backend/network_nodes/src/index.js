@@ -20,19 +20,11 @@ import * as lp from 'it-length-prefixed'
 import map from 'it-map'
 import { bootstrap } from '@libp2p/bootstrap'
 import { pubsubPeerDiscovery } from '@libp2p/pubsub-peer-discovery'
+import bodyParser from 'body-parser'
 
-const profile = {
-  profile_info: {
-    username: process.argv[2]
-  },
-  posts: [
-    {
-      username: process.argv[2],
-      message: `Hello World, I'm ${process.argv[2]}`,
-      date: new Date().toISOString()
-    },
-  ]
-}
+const PORT = 3000
+const curr_username = process.argv[2]
+let profile = undefined
 
 const getCID = async (data) => {
   const bytes = json.encode({ username: data })
@@ -51,7 +43,8 @@ const setUpProviders = async (cids) => {
 const setUpEventListeners = async () => {
   node.pubsub.addEventListener("message", (evt) => {
     if (evt.detail.topic == "_peer-discovery._p2p._pubsub") return
-    console.log(`Node ${node.peerId.toString()} received message on topic ${evt.detail.topic}: ${arrayToString(evt.detail.data)}`)
+    const msg = JSON.parse(arrayToString(evt.detail.data))
+    console.log(`Node ${node.peerId.toString()} received message on topic ${evt.detail.topic}: (${msg.username})${msg.message}`)
   })
 }
 
@@ -105,11 +98,34 @@ const genNode = async () => {
 }
 
 const initializeNode = async (node) => {
-  const curr_cid = await getCID(profile.profile_info.username)
+  const curr_cid = await getCID(curr_username)
   await setUpProviders([curr_cid])
-  await node.contentRouting.put(arrayFromString(profile.profile_info.username), arrayFromString(JSON.stringify(profile)))
+  try {
+    const dht_profile = await node.contentRouting.get(arrayFromString(curr_username))
+    console.log("Profile already exists in DHT")
+    profile = JSON.parse(arrayToString(dht_profile))
+    for (const following of profile.profile_info.following) {
+      node.pubsub.subscribe(following)
+    }
+  } catch (e) {
+    console.log("Profile does not exist in DHT")
+    profile = {
+      profile_info: {
+        username: curr_username,
+        following: [],
+        followers: [],
+      },
+      posts: [
+        {
+          username: process.argv[2],
+          message: `Hello World, I'm ${curr_username}`,
+          date: new Date().toISOString()
+        },
+      ]
+    }
+    await node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
+  }
 }
-  
 
 const node = await genNode()
 
@@ -126,34 +142,56 @@ await delay(5000)
 await initializeNode(node)
 
 const app = express();
-const maddress = node.getMultiaddrs().at(-1).nodeAddress()
-const port = maddress.port
-app.set('port', port+10);
+app.use(bodyParser.json())
 
 app.get("/", function (req, res) {
   res.send("Hello World!");
 });
 
-app.get("/follow/:username", function (req, res) {
+app.put("/follow/:username", async function (req, res) {
   let username = req.params.username;
+  if (profile.profile_info.following.includes(username)) {
+    res.send("Already following " + username);
+    return
+  }
+
+  profile.profile_info.following.push(username)
+  await node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
   node.pubsub.subscribe(username)
   res.send("Followed " + username);
 });
 
-app.get("/unfollow/:username", function (req, res) {
+app.put("/unfollow/:username", async function (req, res) {
   let username = req.params.username;
+  if (!profile.profile_info.following.includes(username)) {
+    res.send("Not following " + username);
+    return
+  }
+  profile.profile_info.following = profile.profile_info.following.filter((following) => following != username)
+  await node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
   node.pubsub.unsubscribe(username)
+
   res.send("Unfollowed " + username);
 });
 
-app.get("/snoot", function (req, res) {
-  const data = req.query.data;
-  if (data == null) {
-    res.send("No data provided");
+app.post("/snoot", async function (req, res) {
+  const data = req.body;
+  console.log(data)
+  if (data.message == null) {
+    res.send("No snoot provided");
     return;
   }
-  node.pubsub.publish(profile.profile_info.username, arrayFromString(data))
-  res.send(profile.profile_info.username + " snooted " + `"${data}"`);
+  const post = {
+    type: "snoot",
+    username: curr_username,
+    message: data.message,
+    date: new Date().toISOString()
+  }
+  // limit to k snoots on profile
+  profile.posts.push(post);
+  await node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
+  node.pubsub.publish(curr_username, arrayFromString(JSON.stringify(post)))
+  res.send(profile.profile_info.username + " snooted " + `"${data.message}"`);
 });
 
 app.get("/profile/:username", async function (req, res) {
@@ -165,8 +203,8 @@ app.get("/profile/:username", async function (req, res) {
     res.send("No user found with username " + username);
 });
 
-app.listen(app.get('port'), function () {
-  console.log(`Example app listening on port ${app.get('port')}!`);
+app.listen(PORT, function () {
+  console.log(`Example app listening on port ${PORT}!`);
 });
 
 process.on('SIGINT', async () => {
