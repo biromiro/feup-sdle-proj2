@@ -18,31 +18,20 @@ import all from 'it-all'
 import { pipe } from 'it-pipe'
 import * as lp from 'it-length-prefixed'
 import map from 'it-map'
+import { bootstrap } from '@libp2p/bootstrap'
+import { pubsubPeerDiscovery } from '@libp2p/pubsub-peer-discovery'
 
-const curr_username = process.argv[2]
-
-const readStream = async function(stream) {
-  let res = []
-  await pipe(
-    stream.source,
-    lp.decode(),
-    (source) => map(source, (buf) => arrayToString(buf.subarray())),
-    async function(source) {
-      for await (const msg of source) {
-        res.push(msg)
-      }
-    }
-  )
-  return res
-}
-
-const writeStream = async function(stream, message) {
-  await pipe(
-    [message],
-    (source) => map(source, (string) => arrayFromString(string)),
-    lp.encode(),
-    stream.sink
-  )
+const profile = {
+  profile_info: {
+    username: process.argv[2]
+  },
+  posts: [
+    {
+      username: process.argv[2],
+      message: `Hello World, I'm ${process.argv[2]}`,
+      date: new Date().toISOString()
+    },
+  ]
 }
 
 const getCID = async (data) => {
@@ -59,7 +48,14 @@ const setUpProviders = async (cids) => {
   }
 }
 
-const createNode = () => {
+const setUpEventListeners = async () => {
+  node.pubsub.addEventListener("message", (evt) => {
+    if (evt.detail.topic == "_peer-discovery._p2p._pubsub") return
+    console.log(`Node ${node.peerId.toString()} received message on topic ${evt.detail.topic}: ${arrayToString(evt.detail.data)}`)
+  })
+}
+
+const createNode = (bootstrapers) => {
   return createLibp2p({
     addresses: {
       listen: ['/ip4/0.0.0.0/tcp/0']
@@ -74,20 +70,48 @@ const createNode = () => {
       noise()
     ],
     pubsub: gossipsub({ allowPublishToZeroPeers: true }),
+    peerDiscovery: [
+      bootstrap({
+        interval: 60e3,
+        list: bootstrapers
+      }),
+      pubsubPeerDiscovery({
+        interval: 1000
+      })
+    ],
     dht: kadDHT({ enabled: true, randomWalk: { enabled: true } }),
   })
 }
 
-const node = await createNode();
+const genNode = async () => {
 
-const boostrapersIDs = JSON.parse(fs.readFileSync('./bootstrapers.json', 'utf8')).bootstrapers;
+  const boostrapersIDs = JSON.parse(fs.readFileSync('./bootstrapers.json', 'utf8')).bootstrapers;
+  const bootstraperFullMultiaddrs = []
 
-for (const boostraper of boostrapersIDs) {
-  const peerID = await createFromJSON({id: boostraper.id});
-  const boostraperMultiaddrs = boostraper.multiaddrs.map((multiaddr_) => multiaddr(multiaddr_));
-  await node.peerStore.addressBook.add(peerID, boostraperMultiaddrs);
-  //await node.dial(peerID);
+  for (const boostraper of boostrapersIDs) {
+    const boostraperMultiaddrs = boostraper.multiaddrs.map((multiaddr_) => multiaddr(multiaddr_));
+    bootstraperFullMultiaddrs.push(...boostraperMultiaddrs)
+  }
+
+  const node = await createNode(bootstraperFullMultiaddrs);
+
+  for (const boostraper of boostrapersIDs) {
+    const peerID = await createFromJSON({id: boostraper.id});
+    const boostraperMultiaddrs = boostraper.multiaddrs.map((multiaddr_) => multiaddr(multiaddr_));
+    await node.peerStore.addressBook.add(peerID, boostraperMultiaddrs);
+  }
+
+  return node
 }
+
+const initializeNode = async (node) => {
+  const curr_cid = await getCID(profile.profile_info.username)
+  await setUpProviders([curr_cid])
+  await node.contentRouting.put(arrayFromString(profile.profile_info.username), arrayFromString(JSON.stringify(profile)))
+}
+  
+
+const node = await genNode()
 
 console.log(`Node starting with id: ${node.peerId.toString()}`)
 
@@ -95,31 +119,11 @@ await node.start()
 
 console.log(`Node started with id: ${node.peerId.toString()}`)
 
-node.addEventListener('peer:discovery', (peer) => {
-  console.log(`Discovered: ${peer.detail.id.toString()}`)
-})
-
-node.pubsub.addEventListener("message", (evt) => {
-  console.log(`Node ${node.peerId.toString()} received message on topic ${evt.detail.topic}: ${arrayToString(evt.detail.data)}`)
-})
-
-node.handle("/username", async ({ stream }) => {
-  let username = await readStream(stream)
-  if(username == curr_username)
-    await writeStream(stream, JSON.stringify({data: `Yes, I'm (${curr_username}) and this is my very secret password - (${process.argv[3]}):)`, status: 200}))
-  else
-    await writeStream(stream, JSON.stringify({data: `No, this is not my username (${curr_username}) :(`, status: 404}))
-})
-
-
+await setUpEventListeners()
 // Wait for onConnect handlers in the DHT
 await delay(5000)
 
-const curr_cid = await getCID(curr_username)
-await setUpProviders([curr_cid])
-
-// wait for propagation
-await delay(300)
+await initializeNode(node)
 
 const app = express();
 const maddress = node.getMultiaddrs().at(-1).nodeAddress()
@@ -130,68 +134,43 @@ app.get("/", function (req, res) {
   res.send("Hello World!");
 });
 
-app.get("/multiaddrs", function (req, res) {
-  res.send(node.getMultiaddrs().map((multiaddr_) => multiaddr_.toString()));
+app.get("/follow/:username", function (req, res) {
+  let username = req.params.username;
+  node.pubsub.subscribe(username)
+  res.send("Followed " + username);
 });
 
-app.get("/subscribe", function (req, res) {
-  const topic = req.query.topic;
-  if (topic == null) {
-    res.send("No topic provided");
-    return;
-  }
-  node.pubsub.subscribe(topic)
-  res.send("Subscribed to topic " + topic);
+app.get("/unfollow/:username", function (req, res) {
+  let username = req.params.username;
+  node.pubsub.unsubscribe(username)
+  res.send("Unfollowed " + username);
 });
 
-app.get("/unsubscribe", function (req, res) {
-  const topic = req.query.topic;
-  if (topic == null) {
-    res.send("No topic provided");
-    return;
-  }
-  node.pubsub.unsubscribe(topic)
-  res.send("Unsubscribed to topic " + topic);
-});
-
-app.get("/publish", function (req, res) {
-  const topic = req.query.topic;
-  if (topic == null) {
-    res.send("No topic provided");
-    return;
-  }
+app.get("/snoot", function (req, res) {
   const data = req.query.data;
   if (data == null) {
     res.send("No data provided");
     return;
   }
-  node.pubsub.publish(topic, arrayFromString(data))
-  res.send("Published to topic " + topic);
+  node.pubsub.publish(profile.profile_info.username, arrayFromString(data))
+  res.send(profile.profile_info.username + " snooted " + `"${data}"`);
 });
 
-app.get("/username/:username", async function (req, res) {
+app.get("/profile/:username", async function (req, res) {
   let username = req.params.username;
-  let cid = await getCID(username)
-
-  const providers = await all(node.contentRouting.findProviders(cid, { timeout: 3000, maxNumProviders: 5 }))
-  for (let provider of providers) {
-    try {
-      const stream = await node.dialProtocol(provider.id, ['/username'])
-      await writeStream(stream, username)
-      const confStream = await readStream(stream)
-      let conf = JSON.parse(confStream)
-      if(!conf || conf.err)
-        continue
-      res.send(conf.data)
-      return
-    } catch (error) {
-      continue
-    }
-  }
-  
-  res.send("No user found with username " + username);
+  let profile = await node.contentRouting.get(arrayFromString(username))
+  if(profile)
+    res.send(JSON.parse(arrayToString(profile)))
+  else
+    res.send("No user found with username " + username);
 });
 
 app.listen(app.get('port'), function () {
   console.log(`Example app listening on port ${app.get('port')}!`);
 });
+
+process.on('SIGINT', async () => {
+  await node.stop()
+  console.log('Node stopped')
+  process.exit()
+})
