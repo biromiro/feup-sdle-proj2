@@ -22,9 +22,9 @@ import { bootstrap } from '@libp2p/bootstrap'
 import { pubsubPeerDiscovery } from '@libp2p/pubsub-peer-discovery'
 import bodyParser from 'body-parser'
 
-const PORT = 3000
 const curr_username = process.argv[2]
 let profile = undefined
+let timeline = []
 
 const getCID = async (data) => {
   const bytes = json.encode({ username: data })
@@ -40,11 +40,46 @@ const setUpProviders = async (cids) => {
   }
 }
 
+const snootHandler = (msg) => {
+  const snoot = {
+    username: msg.username,
+    message: msg.message,
+    date: msg.date
+  }
+  timeline.push(snoot)
+}
+
+const followHandler = (msg) => {
+  console.log(curr_username, msg)
+  if (curr_username == msg.follows) {
+    profile.profile_info.followers.push(msg.username)
+    console.log(profile)
+    node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
+  }
+}
+
+const unfollowHandler = (msg) => {
+  if (curr_username == msg.unfollows) {
+    profile.profile_info.followers.push(msg.username)
+    node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
+  }
+}
+
 const setUpEventListeners = async () => {
   node.pubsub.addEventListener("message", (evt) => {
     if (evt.detail.topic == "_peer-discovery._p2p._pubsub") return
     const msg = JSON.parse(arrayToString(evt.detail.data))
-    console.log(`Node ${node.peerId.toString()} received message on topic ${evt.detail.topic}: (${msg.username})${msg.message}`)
+
+    if (msg.type == "snoot") {
+      console.log(`Node ${node.peerId.toString()} received message on topic ${evt.detail.topic}: (${msg.username})${msg.message}`)
+      snootHandler(msg)
+    } else if (msg.type == "follow") {
+      console.log(`Node ${node.peerId.toString()} received message on topic ${evt.detail.topic}: ${msg.username} is now following ${msg.follows}`)
+      followHandler(msg)
+    } else if (msg.type == "unfollow") {
+      console.log(`Node ${node.peerId.toString()} received message on topic ${evt.detail.topic}: ${msg.username} is no longer following ${msg.unfollows}`)
+      unfollowHandler(msg)
+    }
   })
 }
 
@@ -62,7 +97,7 @@ const createNode = (bootstrapers) => {
     connectionEncryption: [
       noise()
     ],
-    pubsub: gossipsub({ allowPublishToZeroPeers: true }),
+    pubsub: gossipsub({ allowPublishToZeroPeers: true, emitSelf: true }),
     peerDiscovery: [
       bootstrap({
         interval: 60e3,
@@ -104,6 +139,7 @@ const initializeNode = async (node) => {
     const dht_profile = await node.contentRouting.get(arrayFromString(curr_username))
     console.log("Profile already exists in DHT")
     profile = JSON.parse(arrayToString(dht_profile))
+    console.log(curr_username, profile)
     for (const following of profile.profile_info.following) {
       node.pubsub.subscribe(following)
     }
@@ -125,6 +161,21 @@ const initializeNode = async (node) => {
     }
     await node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
   }
+  node.pubsub.subscribe(curr_username)
+  await initializeTimeline(node)
+}
+
+const initializeTimeline = async (node) => {
+  for (const following of profile.profile_info.following) {
+    try {
+      let profile = await node.contentRouting.get(arrayFromString(following))
+      timeline.push(...JSON.parse(arrayToString(profile)).posts)
+    } catch (e) {
+      console.log(`Could not get profile for ${following}`)
+    }
+
+  }
+  timeline.sort((a, b) => new Date(b.date) - new Date(a.date))
 }
 
 const node = await genNode()
@@ -142,13 +193,15 @@ await delay(5000)
 await initializeNode(node)
 
 const app = express();
+const maddress = node.getMultiaddrs().at(-1).nodeAddress()
+const port = maddress.port
+app.set('port', port+10);
 app.use(bodyParser.json())
-
 app.get("/", function (req, res) {
   res.send("Hello World!");
 });
 
-app.put("/follow/:username", async function (req, res) {
+app.put("/follow/:username", function (req, res) {
   let username = req.params.username;
   if (profile.profile_info.following.includes(username)) {
     res.send("Already following " + username);
@@ -156,25 +209,42 @@ app.put("/follow/:username", async function (req, res) {
   }
 
   profile.profile_info.following.push(username)
-  await node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
   node.pubsub.subscribe(username)
+
+  const followMessage = {
+    type: "follow",
+    username: curr_username,
+    follows: username
+  }
+
+  node.pubsub.publish(username, arrayFromString(JSON.stringify(followMessage)))
+
   res.send("Followed " + username);
+  node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
 });
 
-app.put("/unfollow/:username", async function (req, res) {
+app.put("/unfollow/:username", function (req, res) {
   let username = req.params.username;
   if (!profile.profile_info.following.includes(username)) {
     res.send("Not following " + username);
     return
   }
   profile.profile_info.following = profile.profile_info.following.filter((following) => following != username)
-  await node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
   node.pubsub.unsubscribe(username)
 
+  const unfollowMessage = {
+    type: "unfollow",
+    username: curr_username,
+    unfollows: username
+  }
+
+  node.pubsub.publish(username, arrayFromString(JSON.stringify(unfollowMessage)))
+
   res.send("Unfollowed " + username);
+  node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
 });
 
-app.post("/snoot", async function (req, res) {
+app.post("/snoot", function (req, res) {
   const data = req.body;
   console.log(data)
   if (data.message == null) {
@@ -189,22 +259,32 @@ app.post("/snoot", async function (req, res) {
   }
   // limit to k snoots on profile
   profile.posts.push(post);
-  await node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
   node.pubsub.publish(curr_username, arrayFromString(JSON.stringify(post)))
   res.send(profile.profile_info.username + " snooted " + `"${data.message}"`);
+  node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
 });
 
 app.get("/profile/:username", async function (req, res) {
   let username = req.params.username;
-  let profile = await node.contentRouting.get(arrayFromString(username))
-  if(profile)
+  try {
+    let profile = await node.contentRouting.get(arrayFromString(username))
     res.send(JSON.parse(arrayToString(profile)))
-  else
+  } catch (e) {
     res.send("No user found with username " + username);
+  }
+
 });
 
-app.listen(PORT, function () {
-  console.log(`Example app listening on port ${PORT}!`);
+app.get("/timeline", function (req, res) {
+  if (timeline.length == 0) {
+    res.send("No posts to show");
+    return;
+  }
+  res.send(timeline);
+});
+
+app.listen(app.get('port'), function () {
+  console.log(`Example app listening on port ${app.get('port')}!`);
 });
 
 process.on('SIGINT', async () => {
