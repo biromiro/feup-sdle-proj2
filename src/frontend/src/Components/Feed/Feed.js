@@ -1,11 +1,28 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from 'axios';
 import "./Feed.css";
 import Post from "./Post/Post";
 import BoopBox from "./Boop/BoopBox";
 import FlipMove from "react-flip-move";
 
+// codificado duro por agora
+const PORT = 51735;
+const url = `http://localhost:${PORT}/timeline`;
+
 function Feed() {
-  const [posts] = useState([]);
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    axios.get(url)
+      .then((response) => {
+        if(response.data == "No posts to show") return;
+        setPosts(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
+
 
   return (
     <div className="feed">
@@ -14,15 +31,15 @@ function Feed() {
       </div>
 
       <BoopBox />
-
+      
       <FlipMove>
         {posts.map((post) => (
           <Post
-            key={post.text}
-            displayName={post.displayName}
+            key={post.message}
+            displayName={post.username}
             username={post.username}
             verified={post.verified}
-            text={post.text}
+            text={post.message}
             avatar={post.avatar}
             image={post.image}
           />

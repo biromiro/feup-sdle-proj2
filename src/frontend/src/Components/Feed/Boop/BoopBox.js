@@ -1,9 +1,37 @@
 import React, { useState } from "react";
+import axios from "axios";
 import "./BoopBox.css";
 import { Avatar, Button } from "@mui/material";
 
+const PORT = 51735;
+const url = `http://localhost:${PORT}/timeline`;
+
 function BoopBox() {
   const [boopMessage, setBoopMessage] = useState("");
+
+  function sendBoop(e) {
+    e.preventDefault();
+    var data = JSON.stringify({
+      "message": boopMessage
+    });
+    
+    var config = {
+      method: 'post',
+      url: url,
+      headers: { 
+        'Content-Type': 'application/json'
+      },
+      data : data
+    };
+    
+    axios(config)
+    .then(function (response) {
+      console.log(JSON.stringify(response.data));
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
 
   return (
     <div className="boopBox">
@@ -19,7 +47,7 @@ function BoopBox() {
         </div>
 
         <Button
-          //onClick={sendBoop}
+          onClick={sendBoop}
           type="submit"
           className="boopBox__boopButton"
         >

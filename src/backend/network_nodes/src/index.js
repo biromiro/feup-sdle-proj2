@@ -7,6 +7,7 @@ import { kadDHT } from '@libp2p/kad-dht'
 import { createFromJSON } from '@libp2p/peer-id-factory'
 import { multiaddr } from 'multiaddr'
 import express from 'express'
+import cors from 'cors'
 import fs from 'fs'
 import { CID } from 'multiformats/cid'
 import * as json from 'multiformats/codecs/json'
@@ -197,6 +198,7 @@ const maddress = node.getMultiaddrs().at(-1).nodeAddress()
 const port = maddress.port
 app.set('port', port+10);
 app.use(bodyParser.json())
+app.use(cors())
 app.get("/", function (req, res) {
   res.send("Hello World!");
 });
