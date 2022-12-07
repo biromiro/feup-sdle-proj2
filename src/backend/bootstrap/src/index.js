@@ -51,6 +51,6 @@ const bootstrapMultiaddrs = bootstrap.getMultiaddrs()
 console.log(`Bootstrap Multiaddrs: ${bootstrapMultiaddrs}`)
 
 process.on('SIGINT', async () => {
-  await node.stop()
+  await bootstrap.stop()
   process.exit()
 })
