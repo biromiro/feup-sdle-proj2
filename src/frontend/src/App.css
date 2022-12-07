@@ -1,0 +1,13 @@
+body {
+  --snoot-color: #4cbb17;
+  --snoot-background: #f9feff;
+  background-color: var(--snoot-background);
+}
+
+.app{
+  display: flex;
+  width: 100%;
+  max-width: 1350px;
+  height: 100vh;
+  margin: 0 auto;
+}

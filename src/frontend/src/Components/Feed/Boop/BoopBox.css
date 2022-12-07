@@ -1,0 +1,41 @@
+.boopBox {
+    color: var(--snoot-color);
+    padding-bottom: 10px;
+    border-bottom: 8px solid var(--snoot-background);
+    padding-right: 10px;
+}
+
+.boopBox > form {
+    display: flex;
+    flex-direction: column;
+}
+
+.boopBox__input {
+    padding: 20px;
+    display: flex;
+}
+
+.boopBox__input > input {
+    flex: 1;
+    margin-left: 20px;
+    font-size: 20px;
+    border: none;
+}
+
+.boopBox__imageInput {
+    border: none;
+    padding: 10px;
+}
+
+.boopBox__boopButton {
+    color: var(--snoot-color) !important;
+    background-color: var(--snoot-background);
+    border: none;
+    font-weight: 900;
+    text-transform: inherit !important;
+    border-radius: 30px;
+    width: 80px;
+    height: 40px;
+    margin-top: 20px;
+    margin-left: auto !important;
+}
