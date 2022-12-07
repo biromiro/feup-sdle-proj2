@@ -1,29 +1,48 @@
-import React, { useEffect, useState } from "react";
-import axios from 'axios';
+import React, { useCallback, useEffect, useState } from "react";
 import "./Feed.css";
 import Post from "./Post/Post";
 import BoopBox from "./Boop/BoopBox";
 import FlipMove from "react-flip-move";
-
+import { useInterval } from './Utils';
 // codificado duro por agora
-const PORT = 51735;
-const url = `http://localhost:${PORT}/timeline`;
+const PORT = 11920;
+const base_url = `http://localhost:${PORT}`;
 
 function Feed() {
   const [posts, setPosts] = useState([]);
 
+  const updatePosts = useCallback((data) => {
+    const newPostsSorted = [...data, ...posts].sort((a, b) => a.date < b.date ? 1 : -1);
+    const unique = newPostsSorted.filter((value, index, self) =>
+    index === self.findIndex((t) => (
+      t.id === value.id
+    ))
+  )
+    setPosts(unique);
+  }, [posts]);
+
   useEffect(() => {
-    axios.get(url)
-      .then((response) => {
-        if(response.data == "No posts to show") return;
-        setPosts(response.data);
+    fetch(`${base_url}/timeline`, { method: "GET" })
+      .then((res) => (res.status === 200 ? res.json() : "No posts to show"))
+      .then((result) => {
+        console.log(result)
+        setPosts(result)
       })
-      .catch((error) => {
-        console.log(error);
-      });
+      .catch((err) => console.log(err));
   }, []);
 
+  useInterval(() => {
+    fetch(`${base_url}/newSnoots`)
+    .then((res) => (res.status === 200 ? res.json() : "No posts to show"))
+      .then((result) => {
+        console.log(result)
+        updatePosts(result);
+      })
+      .catch((err) => console.log(err));
+  }, 5000);
 
+
+  
   return (
     <div className="feed">
       <div className="feed__header">
@@ -44,13 +63,6 @@ function Feed() {
             image={post.image}
           />
         ))}
-        <Post
-          text="AOTY! QUE POG!"
-          username="mirobiro"
-          displayName="buno"
-          avatar="https://images-ext-1.discordapp.net/external/gF6yhcFy39G1VNdzxl-g74HaQSMDrVLNTBbalodAeLc/https/pbs.twimg.com/profile_images/1550063839798038529/lZRZQMP0.png"
-          image="https://media.pitchfork.com/photos/61649694110e7cd222907396/1:1/w_600/Black-Country-New-Road.jpg">
-        </Post>
       </FlipMove>
     </div>
   );
