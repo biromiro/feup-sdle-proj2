@@ -27,6 +27,13 @@ function Feed() {
             image={post.image}
           />
         ))}
+        <Post
+          text="AOTY! QUE POG!"
+          username="mirobiro"
+          displayName="buno"
+          avatar="https://images-ext-1.discordapp.net/external/gF6yhcFy39G1VNdzxl-g74HaQSMDrVLNTBbalodAeLc/https/pbs.twimg.com/profile_images/1550063839798038529/lZRZQMP0.png"
+          image="https://media.pitchfork.com/photos/61649694110e7cd222907396/1:1/w_600/Black-Country-New-Road.jpg">
+        </Post>
       </FlipMove>
     </div>
   );
