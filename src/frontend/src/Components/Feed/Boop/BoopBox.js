@@ -4,7 +4,7 @@ import "./BoopBox.css";
 import { Avatar, Button } from "@mui/material";
 
 const PORT = 51735;
-const url = `http://localhost:${PORT}/timeline`;
+const url = `http://localhost:${PORT}/snoot`;
 
 function BoopBox() {
   const [boopMessage, setBoopMessage] = useState("");
