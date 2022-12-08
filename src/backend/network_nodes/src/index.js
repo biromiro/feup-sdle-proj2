@@ -116,7 +116,9 @@ const createNode = (bootstrapers) => {
 }
 
 const genNode = async () => {
-
+  //get current path
+  const path = process.cwd()
+  console.log("PATH : ", path);
   const boostrapersIDs = JSON.parse(fs.readFileSync('./bootstrapers.json', 'utf8')).bootstrapers;
   const bootstraperFullMultiaddrs = []
 
@@ -196,7 +198,6 @@ await setUpEventListeners()
 await delay(5000)
 
 await initializeNode(node)
-
 const app = express();
 const maddress = node.getMultiaddrs().at(-1).nodeAddress()
 const port = maddress.port
@@ -306,6 +307,8 @@ app.get('/newSnoots', async function(req, res) {
 app.listen(app.get('port'), function () {
   console.log(`Example app listening on port ${app.get('port')}!`);
 });
+
+process.send({ port: app.get('port') })
 
 process.on('SIGINT', async () => {
   await node.stop()

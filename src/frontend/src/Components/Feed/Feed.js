@@ -5,7 +5,7 @@ import BoopBox from "./Boop/BoopBox";
 import FlipMove from "react-flip-move";
 import { useInterval } from './Utils';
 // codificado duro por agora
-const PORT = 11920;
+const PORT = 57238;
 const base_url = `http://localhost:${PORT}`;
 
 function Feed() {
