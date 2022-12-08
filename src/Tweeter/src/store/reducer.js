@@ -12,6 +12,7 @@ let initialState = {
   successMessage: null,
   email: null,
   postedTweet: null,
+  port: null,
 };
 
 const Reducer = (state = initialState, action) => {
@@ -32,6 +33,7 @@ const Reducer = (state = initialState, action) => {
         username: action.username,
         bio: action.bio,
         email: action.email,
+        port: action.port,
       };
     case actionTypes.AUTH_FAIL:
       return {
@@ -47,6 +49,7 @@ const Reducer = (state = initialState, action) => {
         bio: action.bio,
         email: action.email,
         message: action.message,
+        port: action.port,
       };
 
     case actionTypes.RESET_POSTED_TWEET:

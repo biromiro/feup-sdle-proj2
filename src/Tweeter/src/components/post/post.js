@@ -5,9 +5,10 @@ import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import UserImage from "../../Images/johndoe.jpg";
 
 const Post = (props) => {
-  let date = new Date(props.datetime.$date);
+  let date = new Date(props.datetime);
   let navigate = useNavigate();
 
   const [liked, setLiked] = useState(props.liked);
@@ -81,34 +82,19 @@ const Post = (props) => {
       .catch((err) => console.log(err));
   };
 
-  const bookmarkPost = () => {
-    setSaved(!saved);
-    let url = `https://tweeter-test-yin.herokuapp.com/${props.post_id.$oid}/bookmark`;
-    axios({
-      method: "get",
-      url: url,
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: props.token,
-      },
-    })
-      .then((res) => setSaved(res.data.bookmarked))
-      .catch((err) => console.log(err));
-  };
-
   return (
     <article className="post">
       {commentSent === false ? (
         <p className="tweetFail">An error occured. Please try again.</p>
       ) : null}
       <header className="postingDetails">
-        <img className="posterImage" src={props.user.profile_image} />
+        <img className="posterImage" src={props.user?.profile_image ? props.user.profile_image : UserImage} />
         <div>
           <Link
-            to={`/profile/tweets/${props.user._id.$oid}`}
+            to={`/profile/${props.username}`}
             className="posterName"
           >
-            {props.user.username}
+            {props.username}
           </Link>
           <p className="postingDate">
             {date.getDate()} {date.toLocaleString("en", { month: "long" })} at{" "}
@@ -118,28 +104,12 @@ const Post = (props) => {
       </header>
       <Link
         className="tweet"
-        to={`/${props.user.username}/${props.post_id.$oid}`}
+        to={`/${props.username}/${props.post_id.$oid}`}
       >
         {props.caption}
       </Link>
       <img className="postImage" src={props.image} />
-      <div className="engagementLinks">
-        <Link
-          to={`/${props.username}/${props.post_id.$oid}`}
-          className="engagementLink"
-        >
-          {props.comments} Comments
-        </Link>
-        <a className="engagementLink">{retweets} Retweets</a>
-        <a className="engagementLink">{saves} Saved</a>
-      </div>
       <div className="engageLinks">
-        <a className="engageLink">
-          <span className="material-icons-outlined engageLink">
-            mode_comment
-          </span>
-          <span>Comment</span>
-        </a>
         <a
           className="engageLink"
           style={retweeted ? { color: "#27AE60" } : { color: "initial" }}
@@ -158,40 +128,7 @@ const Post = (props) => {
           </span>
           <span>{liked ? "Liked" : "Like"}</span>
         </a>
-        <a
-          className="engageLink"
-          style={saved ? { color: "#2D9CDB" } : { color: "inherit" }}
-          onClick={bookmarkPost}
-        >
-          <span className="material-icons-outlined engageLink">
-            bookmark_border
-          </span>
-          <span>{saved ? "Saved" : "Save"}</span>
-        </a>
       </div>
-      <div className="commentCard">
-        <img src={props.imageURL} className="posterImage" />
-        <div
-          style={{
-            position: "relative",
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <input
-            className="inputComment"
-            placeholder="Tweet your reply"
-            onChange={handleComment}
-            value={comment}
-          />
-          {/* <i className="material-icons-outlined commentImageIcon">image</i> */}
-          <i className="material-icons-outlined sendIcon" onClick={sendComment}>
-            send
-          </i>
-        </div>
-      </div>
-      {/* <Comment/> */}
     </article>
   );
 };

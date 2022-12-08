@@ -3,13 +3,13 @@
   height: auto;
   border: 1px solid #e0e0e0;
   padding: 16px;
-  margin-bottom: 20px;
   box-shadow: 0px 2px 4px 0px #0000000d;
   background: #ffffff;
   border-radius: 12px;
+  margin-bottom: 16px;
 }
 
-.createTweet > p {
+.createTweet>p {
   font-family: Poppins;
   font-size: 12px;
   font-style: normal;
@@ -31,7 +31,6 @@ div.tweetbox {
 }
 
 .tweetBox {
-  height: 100px;
   width: 100%;
   border: none;
   resize: none;
@@ -56,6 +55,7 @@ div.tweetbox {
   display: flex;
   position: relative;
   cursor: pointer;
+  min-height: 30px;
 }
 
 .newtweetIcons i {
@@ -63,7 +63,7 @@ div.tweetbox {
   color: #2f80ed;
 }
 
-.newtweetIcons > div p {
+.newtweetIcons>div p {
   display: flex;
   align-items: center;
   color: #2f80ed;
@@ -73,11 +73,11 @@ div.tweetbox {
   line-height: 16px;
 }
 
-.newtweetIcons > p > i {
+.newtweetIcons>p>i {
   margin-right: 6px;
 }
 
-.newtweetIcons > button {
+.newtweetIcons>button {
   position: absolute;
   right: 0%;
   height: 32px;
@@ -88,8 +88,8 @@ div.tweetbox {
   border-style: none;
 }
 
-.newtweetIcons > button:disabled {
-  background-color: rgba(239, 239, 239, 0.3) !important ;
+.newtweetIcons>button:disabled {
+  background-color: rgba(239, 239, 239, 0.3) !important;
   color: rgba(16, 16, 16, 0.3) !important;
   border-color: rgba(118, 118, 118, 0.3) !important;
 }
@@ -108,7 +108,7 @@ div.tweetbox {
   left: 30px;
 }
 
-.replyPermission > p:first-child {
+.replyPermission>p:first-child {
   font-family: Poppins;
   font-size: 12px;
   font-weight: 600;
@@ -117,7 +117,7 @@ div.tweetbox {
   margin-bottom: 6px;
 }
 
-.replyPermission > p:nth-child(2) {
+.replyPermission>p:nth-child(2) {
   font-family: Noto Sans;
   font-size: 12px;
   font-weight: 400;
@@ -126,7 +126,7 @@ div.tweetbox {
   margin-bottom: 6px;
 }
 
-.replyPermission > div > a {
+.replyPermission>div>a {
   display: flex;
   align-items: center;
   font-family: Noto Sans;
@@ -138,12 +138,12 @@ div.tweetbox {
   padding: 12px;
 }
 
-.replyPermission > div > a:hover {
+.replyPermission>div>a:hover {
   background: #f2f2f2;
   cursor: pointer;
 }
 
-.replyPermission > div > a > i {
+.replyPermission>div>a>i {
   margin-right: 10px;
   color: #333333;
 }
@@ -169,9 +169,10 @@ div.tweetbox {
 }
 
 @media (max-width: 767px) {
-  .newtweetIcons > div p {
+  .newtweetIcons>div p {
     font-size: 8px;
   }
+
   .newtweetIcons {
     margin-left: 50px;
   }

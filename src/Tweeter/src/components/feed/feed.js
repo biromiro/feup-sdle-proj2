@@ -10,8 +10,9 @@ class Feed extends React.Component {
     tweets: [],
     loading: true,
   };
+
   componentDidMount() {
-    let url = "https://tweeter-test-yin.herokuapp.com/feed";
+    let url = `http://127.0.0.1:${this.props.port}/timeline`;
     axios({
       method: "get",
       url: url,
@@ -20,12 +21,30 @@ class Feed extends React.Component {
         Authorization: this.props.token,
       },
     })
-      .then((res) =>
+      .then((res) =>{
         this.setState(() => {
           return { tweets: res.data, loading: false };
         })
+      }
       )
       .catch((err) => this.setState({ error: true, loading: false }));
+    setInterval(() => {
+      fetch(`http://127.0.0.1:${this.props.port}/newSnoots`)
+      .then((res) => (res.status === 200 ? res.json() : "No posts to show"))
+        .then((result) => {
+          const newPostsSorted = [...result, ...this.state.tweets].sort((a, b) => a.date < b.date ? 1 : -1);
+
+          const unique = newPostsSorted.filter((value, index, self) =>
+          index === self.findIndex((t) => (
+            t.id === value.id
+          )))
+          console.log(result, this.state.tweets, unique)
+          this.setState(() => {
+            return { tweets: unique, loading: false };
+          })
+        })
+        .catch((err) => console.log(err));
+    }, 5000);
   }
 
   render() {
@@ -38,13 +57,13 @@ class Feed extends React.Component {
         )}
         {this.state.tweets.map((post, index) => (
           <Post
-            user={post.user}
-            caption={post.caption}
-            image={post.post_urls[0]}
+            username={post.username}
+            caption={post.message}
+            image={post.post_urls ? post.post_urls[0] : null}
             comments={post.comments}
             retweets={post.retweets}
-            datetime={post.createdAt}
-            post_id={post._id}
+            datetime={post.date}
+            post_id={post.id}
             liked={post.liked}
             likes={post.likes}
             retweeted={post.retweeted}
@@ -61,6 +80,7 @@ class Feed extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
+    port: state.port,
     imageURL: state.imageURL,
     username: state.username,
     token: state.token,

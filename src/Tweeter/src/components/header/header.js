@@ -24,16 +24,16 @@ const Header = (props) => {
         <NavLink className="navLink" to="/explore">
           Explore
         </NavLink>
-        <NavLink className="navLink" to="/bookmarks">
+        {/*<NavLink className="navLink" to="/bookmarks">
           Bookmarks
-        </NavLink>
+  </NavLink>*/}
       </nav>
       <div className="userProfile">
         <a
           className="userSummary"
           onClick={() => setshowDropdown(!showDropdown)}
         >
-          <img src={props.imageURL} className="userImage" />
+          <img src={props.imageURL ? props.imageURL : UserImage} className="userImage" />
           <a className="username">{props.username}</a>
         </a>
         {showDropdown ? <ProfileDropdown /> : null}

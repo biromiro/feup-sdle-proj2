@@ -3,8 +3,8 @@
         {
             "id": "QmVVP9rWw5yLCbZVQzoDSUZrz7VcS14TQ3GL2X5yXqqcPb",
             "multiaddrs": [
-                "/ip4/172.22.32.1/tcp/8130/p2p/QmVVP9rWw5yLCbZVQzoDSUZrz7VcS14TQ3GL2X5yXqqcPb",
-                "/ip4/10.227.153.193/tcp/8130/p2p/QmVVP9rWw5yLCbZVQzoDSUZrz7VcS14TQ3GL2X5yXqqcPb",
+                "/ip4/172.28.144.1/tcp/8130/p2p/QmVVP9rWw5yLCbZVQzoDSUZrz7VcS14TQ3GL2X5yXqqcPb",
+                "/ip4/192.168.1.17/tcp/8130/p2p/QmVVP9rWw5yLCbZVQzoDSUZrz7VcS14TQ3GL2X5yXqqcPb",
                 "/ip4/127.0.0.1/tcp/8130/p2p/QmVVP9rWw5yLCbZVQzoDSUZrz7VcS14TQ3GL2X5yXqqcPb"
             ]
         },

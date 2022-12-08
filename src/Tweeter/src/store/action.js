@@ -10,36 +10,32 @@ export const authStart = () => {
 export const authSuccess = (res) => {
   return {
     type: actionTypes.AUTH_SUCCESS,
-    token: res.token,
-    userId: res._id,
-    imageURL: res.profile_image,
+    token: 'ok',
+    //userId: res._id,
+    //imageURL: res.profile_image,
     username: res.username,
-    bio: res.bio,
+    //bio: res.bio,
+    port: res.port,
   };
 };
 
 export const saveSuccess = (res) => {
   return {
     type: actionTypes.SAVE_SUCCESS,
-    imageURL: res.profile_image,
+    //imageURL: res.profile_image,
     username: res.username,
-    bio: res.bio,
+    //bio: res.bio,
     message: res.message,
+    port: res.port,
   };
 };
 
 export const saveDetails = (details) => {
   const button = document.querySelector("#saveDetails");
   return (dispatch, getState) => {
-    let url = `https://tweeter-test-yin.herokuapp.com/${
-      getState().userId
-    }/profile`;
+    let url = `http://127.0.0.1:${getState().port}/saveProfile`;
     axios
-      .post(url, details, {
-        headers: {
-          Authorization: getState().token,
-        },
-      })
+      .post(url, details)
       .then((response) => {
         dispatch(saveSuccess(response.data));
         button.disabled = false;
@@ -64,10 +60,7 @@ export const auth = (username, method) => {
     const authData = {
       username: username,
     };
-    let url = "https://tweeter-test-yin.herokuapp.com/register";
-    if (!method) {
-      url = "https://tweeter-test-yin.herokuapp.com/login";
-    }
+    let url = "http://127.0.0.1:3001/get-node";
     axios
       .post(url, authData)
       .then((response) => {
@@ -75,10 +68,12 @@ export const auth = (username, method) => {
           throw response
         } 
         else{
+          console.log(response.data)
           dispatch(authSuccess(response.data));
         }
       })
       .catch((error) => {
+        console.log(error)
         dispatch(authFail(error.response.data.message));
       });
   };
@@ -86,14 +81,13 @@ export const auth = (username, method) => {
 
 export const postTweet = (tweet) => {
   return (dispatch, getState) => {
-    let url = "https://tweeter-test-yin.herokuapp.com/posts/create";
+    let url = `http://127.0.0.1:${getState().port}/snoot`;
     axios({
       method: "post",
       url: url,
       data: tweet,
       headers: {
         "Content-Type": "multipart/form-data",
-        Authorization: getState().token,
       },
     })
       .then(dispatch({ type: actionTypes.TWEET_SUCCESS }))

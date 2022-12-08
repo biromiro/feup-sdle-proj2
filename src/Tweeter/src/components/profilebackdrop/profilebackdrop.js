@@ -7,13 +7,10 @@ const ProfileDropdown = (props) => {
   return (
     <div className="profileDropdown">
       <React.Fragment>
-        <Link className="dropdownLink" to={`/profile/tweets/${props.userId}`}>
+        <Link className="dropdownLink" to={`/profile/tweets/${props.username}`}>
           <span className="material-icons-outlined">account_circle</span>
           My Profile
         </Link>
-        <a className="dropdownLink">
-          <span className="material-icons-outlined">group</span>Group Chat
-        </a>
         <Link to="/settings" className="dropdownLink">
           <span className="material-icons-outlined">settings</span>Settings
         </Link>
@@ -25,15 +22,34 @@ const ProfileDropdown = (props) => {
   );
 };
 
+let port = undefined;
+
 const mapStateToProps = (state) => {
+  port = state.port;
   return {
     userId: state.userId,
+    username: state.username,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    logout: () => dispatch({ type: "SET_LOGOUT" }),
+    logout: () => {
+      dispatch({ type: "SET_LOGOUT" })
+      fetch(`http://localhost:${port}/logout`, {
+        method: "POST",
+        credentials: "include",
+      })
+        .then((res) => {
+          console.log(res)
+          if (res.success) {
+            dispatch({ type: "SET_LOGOUT" })
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
   };
 };
 

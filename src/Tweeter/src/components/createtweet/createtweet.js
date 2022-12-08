@@ -5,12 +5,13 @@ import { connect } from "react-redux";
 import * as actionTypes from "../../store/actionTypes";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
+import UserImage from "../../Images/johndoe.jpg";
 
 class CreateTweet extends Component {
   state = {
     showpermission: false,
     tweet: {
-      caption: null,
+      message: null,
       file: null,
     },
     permission: 1,
@@ -30,30 +31,32 @@ class CreateTweet extends Component {
 
   postTweet = (event) => {
     const button = document.querySelector("#tweetButton");
+    const textarea = document.querySelector("#tweetMessage");
+    textarea.value = '';
     button.disabled = true;
     event.preventDefault();
     const data = this.state.tweet;
-    const stateKeys = Object.keys(data);
-    const formData = new FormData();
-    stateKeys.map((key) => {
-      formData.append(key, data[key]);
-    });
-    let url = "https://tweeter-test-yin.herokuapp.com/posts/create";
+
+    console.log(data)
+
+    let url = `http://127.0.0.1:${this.props.port}/snoot`;
+    console.log(url)
     axios({
-      method: "post",
+      method: 'post',
       url: url,
-      data: formData,
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: this.props.token,
+      headers: { 
+        'Content-Type': 'application/json'
       },
+      data : data
     })
       .then((res) => {
+        console.log(res)
         button.disabled = false;
-        this.props.navigate(`/${res.data.user.username}/${res.data.post_id}`);
-        this.setState({ postedTweet: true });
+        //this.props.navigate(`/${res.username}/${res.id}`);
+        this.setState({ postedTweet: true});
       })
       .catch((err) => {
+        console.log(err)
         this.setState({ postedTweet: false });
         button.disabled = false;
       });
@@ -83,7 +86,7 @@ class CreateTweet extends Component {
 
   handleNewTweet = (event) => {
     this.setState({
-      tweet: { ...this.state.tweet, caption: event.target.value },
+      tweet: { ...this.state.tweet, message: event.target.value },
     });
   };
 
@@ -107,9 +110,10 @@ class CreateTweet extends Component {
         <div className="createTweet">
           <p>Tweet something</p>
           <div className="newtweetInput">
-            <img className="posterImage" src={this.props.imageURL} />
+            <img className="posterImage" src={this.props.imageURL ? this.props.imageURL : UserImage} />
             <div className="tweetbox">
               <textarea
+                id="tweetMessage"
                 placeholder="What’s happening?"
                 className="tweetBox"
                 onChange={this.handleNewTweet}
@@ -120,7 +124,7 @@ class CreateTweet extends Component {
             </div>
           </div>
           <div className="newtweetIcons">
-            <label htmlFor="file-input">
+            {/*<label htmlFor="file-input">
               <i className="material-icons-outlined tweetImageIcon">image</i>
             </label>
             <input
@@ -152,7 +156,7 @@ class CreateTweet extends Component {
                   </div>
                 </div>
               ) : null}
-            </div>
+              </div>*/}
             <button id="tweetButton" onClick={this.postTweet}>
               Tweet
             </button>
@@ -169,6 +173,7 @@ const mapStateToProps = (state) => {
     error: state.error,
     postedTweet: state.postedTweet,
     token: state.token,
+    port: state.port,
   };
 };
 

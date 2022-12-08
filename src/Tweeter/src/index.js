@@ -4,10 +4,20 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {createStore, applyMiddleware} from 'redux';
-import Reducer from './store/reducer';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import thunk from 'redux-thunk';
+import { persistStore, persistReducer } from 'redux-persist'
+import storage from 'redux-persist/lib/storage' // defaults to localStorage for web
+import { PersistGate } from 'redux-persist/integration/react'
+import reducer from './store/reducer'
+ 
+const persistConfig = {
+  key: 'root',
+  storage,
+}
+ 
+const persistedReducer = persistReducer(persistConfig, reducer)
 
 const logger = store => next => action => {
   // console.log('dispatching', action)
@@ -16,14 +26,17 @@ const logger = store => next => action => {
   return result
 }
 
-const store = createStore(Reducer, applyMiddleware(thunk))
+const store = createStore(persistedReducer, applyMiddleware(thunk))
+let persistor = persistStore(store)
 
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-    <BrowserRouter>
-    <App />
-    </BrowserRouter>
+      <PersistGate loading={null} persistor={persistor}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </PersistGate>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')

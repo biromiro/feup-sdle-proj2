@@ -37,7 +37,7 @@ const getCID = async (data) => {
 
 const setUpProviders = async (cids) => {
   for (const cid of cids) {
-    await node.contentRouting.provide(cid)
+    node.contentRouting.provide(cid)
     console.log('Node %s is providing %s', node.peerId.toString(), cid.toString())
   }
 }
@@ -119,7 +119,7 @@ const genNode = async () => {
   //get current path
   const path = process.cwd()
   console.log("PATH : ", path);
-  const boostrapersIDs = JSON.parse(fs.readFileSync('./bootstrapers.json', 'utf8')).bootstrapers;
+  const boostrapersIDs = JSON.parse(fs.readFileSync('../network_nodes/bootstrapers.json', 'utf8')).bootstrapers;
   const bootstraperFullMultiaddrs = []
 
   for (const boostraper of boostrapersIDs) {
@@ -132,7 +132,7 @@ const genNode = async () => {
   for (const boostraper of boostrapersIDs) {
     const peerID = await createFromJSON({id: boostraper.id});
     const boostraperMultiaddrs = boostraper.multiaddrs.map((multiaddr_) => multiaddr(multiaddr_));
-    await node.peerStore.addressBook.add(peerID, boostraperMultiaddrs);
+    node.peerStore.addressBook.add(peerID, boostraperMultiaddrs);
   }
 
   return node
@@ -166,7 +166,7 @@ const initializeNode = async (node) => {
         },
       ]
     }
-    await node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
+    node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
   }
   node.pubsub.subscribe(curr_username)
   await initializeTimeline(node)
@@ -183,6 +183,7 @@ const initializeTimeline = async (node) => {
 
   }
   timeline.sort((a, b) => new Date(b.date) - new Date(a.date))
+  node.pubsub.subscribe(curr_username)
 }
 
 const node = await genNode()
@@ -228,7 +229,7 @@ app.put("/follow/:username", function (req, res) {
   node.pubsub.publish(username, arrayFromString(JSON.stringify(followMessage)))
 
   res.status(200)
-  res.send("Followed " + username);
+  res.send(followMessage);
   node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
 });
 
@@ -251,7 +252,7 @@ app.put("/unfollow/:username", function (req, res) {
   node.pubsub.publish(username, arrayFromString(JSON.stringify(unfollowMessage)))
 
   res.status(200)
-  res.send("Unfollowed " + username);
+  res.send(unfollowMessage);
   node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
 });
 
@@ -275,7 +276,7 @@ app.post("/snoot", function (req, res) {
   node.pubsub.publish(curr_username, arrayFromString(JSON.stringify(post)))
 
   res.status(200)
-  res.send(profile.profile_info.username + " snooted " + `"${data.message}"`);
+  res.send(post);
   node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
 });
 
@@ -298,10 +299,18 @@ app.get("/timeline", function (req, res) {
 });
 
 app.get('/newSnoots', async function(req, res) {
-  console.log("Sent new Snoots")
+  if (newSnoots.length !== 0)
+    console.log("Sent new Snoots")
   res.status(200)
   res.send(newSnoots)
   newSnoots = []
+});
+
+app.post('/logout', async function(req, res) {
+  await node.stop()
+  console.log('Logged out and stopped node')
+  res.status(200).send("Logged out")
+  process.exit()
 });
 
 app.listen(app.get('port'), function () {

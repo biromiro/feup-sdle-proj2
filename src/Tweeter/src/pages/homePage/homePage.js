@@ -19,9 +19,9 @@ const HomePage = (props) => {
         </HomeContainer>
         <SideBar>
           <Bio />
-          {/* <TrendsCard />
-          <TrendsCard /> */}
           <FollowCard />
+          {/* <TrendsCard />
+          <TrendsCard />*/}
         </SideBar>
       </Container>
     </div>
