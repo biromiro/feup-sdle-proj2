@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import ProfileDropdown from "../../components/profilebackdrop/profilebackdrop";
-import UserImage from "../../Images/johndoe.jpg";
+import UserImage from "../../Images/johndoe.png";
 import Loader from "../../components/loader/loader";
 import Tweeter from "../../Images/tweeter.svg";
 import "./updateprofile.css";

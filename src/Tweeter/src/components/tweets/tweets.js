@@ -14,17 +14,16 @@ class Tweets extends React.Component {
 
   componentDidMount() {
     const userId = this.props.params.user_id;
-    let url = `https://tweeter-test-yin.herokuapp.com/user/${userId}/posts`;
+    let url = `http://localhost:${this.props.port}/profile/${userId}`;
     axios({
       method: "get",
       url: url,
       headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: this.props.token,
+        "Content-Type": "application/json",
       },
     })
       .then((res) => {
-        this.setState({ tweets: res.data, loading: false });
+        this.setState({ tweets: res.data.posts.reverse(), loading: false });
       })
       .catch((err) => this.setState({ error: true, loading: false }));
   }
@@ -33,7 +32,7 @@ class Tweets extends React.Component {
     if (prevProps.params.user_id !== this.props.params.user_id) {
       this.setState({ loading: true });
       const userId = this.props.params.user_id;
-      let url = `https://tweeter-test-yin.herokuapp.com/user/${userId}/posts`;
+      let url = `http://localhost:${this.props.port}/profile/${userId}`;
       axios({
         method: "get",
         url: url,
@@ -44,7 +43,7 @@ class Tweets extends React.Component {
       })
         .then((res) => {
           console.log(res);
-          this.setState({ tweets: res.data, loading: false });
+          this.setState({ tweets: res.data.posts.reverse(), loading: false });
         })
         .catch((err) => this.setState({ error: true, loading: false }));
     }
@@ -64,12 +63,12 @@ class Tweets extends React.Component {
           this.state.tweets.map((post) => (
             <Post
               user={post.user}
-              caption={post.caption}
-              image={post.post_urls[0]}
+              caption={post.message}
+              image={post.post_urls ? post.post_urls[0] : null}
               comments={post.comments}
               retweets={post.retweets}
-              datetime={post.createdAt}
-              post_id={post._id}
+              datetime={post.date}
+              post_id={post.id}
               liked={post.liked}
               likes={post.likes}
               retweeted={post.retweeted}
@@ -100,6 +99,7 @@ const mapStateToProps = (state) => {
     imageURL: state.imageURL,
     username: state.username,
     token: state.token,
+    port: state.port,
   };
 };
 

@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import UserImage from "../../Images/johndoe.jpg";
+import UserImage from "../../Images/johndoe.png";
 
 const Post = (props) => {
   let date = new Date(props.datetime);

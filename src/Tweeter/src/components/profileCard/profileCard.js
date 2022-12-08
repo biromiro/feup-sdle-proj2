@@ -9,15 +9,16 @@ import {
   useNavigate,
 } from "react-router-dom";
 import Spinner from "../spinner/spinner";
+import UserImage from "../../Images/johndoe.png";
 
 const ProfileCard = (props) => {
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
-  const [self, setself] = useState(true);
   const [profile_image, setprofile_image] = useState("");
-  const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
-  const userId = useParams().user_id;
+  const username = useParams().user_id;
+  const self = props.username === username;
+  const port = props.port;
   const [youfollow, setYoufollow] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -25,13 +26,9 @@ const ProfileCard = (props) => {
   const handleFollow = () => {
     setFollowers(followers + 1);
     setYoufollow(!youfollow);
-    let url = `https://tweeter-test-yin.herokuapp.com/${userId}/follow`;
+    let url = `http://localhost:${port}/follow/${username}`;
     axios
-      .get(url, {
-        headers: {
-          Authorization: props.token,
-        },
-      })
+      .get(url)
       .then((response) => {
         setFollowers(response.data.followers);
         setYoufollow(response.data.following);
@@ -43,19 +40,13 @@ const ProfileCard = (props) => {
   };
 
   useEffect(() => {
-    let url = `https://tweeter-test-yin.herokuapp.com/${userId}/profile`;
+    let url = `http://localhost:${port}/profile/${username}`;
     axios
-      .get(url, {
-        headers: {
-          Authorization: props.token,
-        },
-      })
+      .get(url)
       .then((response) => {
-        setFollowers(response.data.followers);
-        setFollowing(response.data.following);
-        setself(response.data.self);
+        setFollowers(response.data.profile_info.followers.length);
+        setFollowing(response.data.profile_info.following.length);
         setprofile_image(response.data.profile_image);
-        setUsername(response.data.username);
         setBio(response.data.bio);
         setYoufollow(response.data.you_follow);
         setLoading(false);
@@ -63,33 +54,8 @@ const ProfileCard = (props) => {
       .catch((error) => {
         setError(true);
       });
-  }, []);
-
-  useEffect(() => {
-    setLoading(true);
-    let url = `https://tweeter-test-yin.herokuapp.com/${userId}/profile`;
-    axios
-      .get(url, {
-        headers: {
-          Authorization: props.token,
-        },
-      })
-      .then((response) => {
-        setFollowers(response.data.followers);
-        setFollowing(response.data.following);
-        setself(response.data.self);
-        setprofile_image(response.data.profile_image);
-        setUsername(response.data.username);
-        setBio(response.data.bio);
-        setYoufollow(response.data.you_follow);
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError(true);
-        setLoading(false);
-      });
-  }, [userId]);
-
+  }, [username, port]);
+  
   return (
     <div className="profileCard">
       {loading && !error && <Spinner />}
@@ -100,7 +66,7 @@ const ProfileCard = (props) => {
       )}
       {!loading && (
         <React.Fragment>
-          <img className="profileImage" src={profile_image} />
+          <img className="profileImage" src={profile_image ? profile_image : UserImage} />
           <div className="Bio">
             <div className="flexDisplay">
               <p className="userName">{username}</p>
@@ -130,6 +96,7 @@ const mapStateToProps = (state) => {
     bio: state.bio,
     token: state.token,
     userId: state.userId,
+    port: state.port,
   };
 };
 

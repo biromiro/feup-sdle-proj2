@@ -34,7 +34,7 @@ const UserProfile = (props) => {
       <div>
         <img src={props.profile_image}></img>
         <div>
-          <Link to={`/profile/tweets/${props.userId}`}>{props.username}</Link>
+          <Link to={`/profile/${props.userId}`}>{props.username}</Link>
           <a>{followers} followers</a>
         </div>
         <button onClick={handleFollow}>

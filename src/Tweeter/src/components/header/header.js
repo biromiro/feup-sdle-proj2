@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./header.css";
 import Tweeter from "../../Images/tweeter.svg";
 import TweeterMobile from "../../Images/tweeter-small.svg";
-import UserImage from "../../Images/johndoe.jpg";
+import UserImage from "../../Images/johndoe.png";
 import ProfileDropdown from "../profilebackdrop/profilebackdrop";
 import { Link, NavLink } from "react-router-dom";
 import { connect } from "react-redux";

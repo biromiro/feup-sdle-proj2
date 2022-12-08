@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import * as actionTypes from "../../store/actionTypes";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-import UserImage from "../../Images/johndoe.jpg";
+import UserImage from "../../Images/johndoe.png";
 
 class CreateTweet extends Component {
   state = {

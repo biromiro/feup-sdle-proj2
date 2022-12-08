@@ -3,7 +3,7 @@ import Auth from "../../components/auth/auth";
 import { Link } from "react-router-dom";
 import ProfileDropdown from "../../components/profilebackdrop/profilebackdrop";
 import TweeterMobile from "../../Images/tweeter-small.svg";
-import UserImage from "../../Images/johndoe.jpg";
+import UserImage from "../../Images/johndoe.png";
 import Tweeter from "../../Images/tweeter.svg";
 import "./profile.css";
 import updateprofile from "../updateprofile/updateprofile";

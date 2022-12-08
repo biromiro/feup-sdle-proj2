@@ -7,7 +7,7 @@ const ProfileDropdown = (props) => {
   return (
     <div className="profileDropdown">
       <React.Fragment>
-        <Link className="dropdownLink" to={`/profile/tweets/${props.username}`}>
+        <Link className="dropdownLink" to={`/profile/${props.username}`}>
           <span className="material-icons-outlined">account_circle</span>
           My Profile
         </Link>

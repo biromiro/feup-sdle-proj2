@@ -4,7 +4,7 @@ import ProfileCard from "../../components/profileCard/profileCard";
 import Container from "../../components/container/container";
 import Header from "../../components/header/header";
 import LinksCard from "../../components/linksCard/linksCard";
-import HomeContainer from "../../components/homeContainer/homeContainer";
+import ProfileContainer from "../../components/profileContainer/profileContainer";
 import SideBar from "../../components/sidebar/sidebar";
 import Tweets from "../../components/tweets/tweets";
 import { useParams } from "react-router-dom";
@@ -20,20 +20,12 @@ const User = props => {
     <div>
       <Header />
       <UserHeader>
-        <ProfileCard userId={useParams().user_id}/>
+        <ProfileCard username={useParams().user_id}/>
       </UserHeader>
       <Container>
-        <SideBar>
-          <LinksCard />
-        </SideBar>
-        <HomeContainer>
-          {
-            exact == 'tweets' ? <Tweets/>
-            : exact == 'media' ? <Media/>
-            : exact == 'retweets' ? <Retweets/>
-            : <Likes/>
-          }
-        </HomeContainer>
+        <ProfileContainer>
+          <Tweets/>
+        </ProfileContainer>
       </Container>
     </div>
   );

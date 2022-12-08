@@ -52,14 +52,6 @@ const Tweeter = (props) => {
         />
       )}
       {props.auth ? (
-        <Route path="/bookmarks" element={<BookmarksPage />} />
-      ) : (
-        <Route
-          path="/bookmarks"
-          element={<Navigate to="/signin" state={{ from: location }} />}
-        />
-      )}
-      {props.auth ? (
         <Route path="/profile" element={<User />} />
       ) : (
         <Route
@@ -101,13 +93,13 @@ const Tweeter = (props) => {
       )}
       {props.auth ? (
         <Route
-          path="/profile/:exact/:user_id"
+          path="/profile/:user_id"
           element={<User />}
           key={location.key}
         />
       ) : (
         <Route
-          path="/profile/:exact/:user_id"
+          path="/profile/:user_id"
           element={<Navigate to="/signin" replace state={{ from: location }} />}
         />
       )}

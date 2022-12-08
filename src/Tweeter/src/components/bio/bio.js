@@ -1,7 +1,7 @@
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import "./bio.css";
-import UserImage from "../../Images/johndoe.jpg";
+import UserImage from "../../Images/johndoe.png";
 
 const Bio = (props) => {
   return (
@@ -9,7 +9,7 @@ const Bio = (props) => {
       <img src={props.imageURL ? props.imageURL : UserImage} />
       <p>{props.username}</p>
       <p>{props.bio}</p>
-      <Link to={`/profile/tweets/${props.userId}`}>View full profile</Link>
+      <Link to={`/profile/${props.username}`}>View full profile</Link>
     </div>
   );
 };
