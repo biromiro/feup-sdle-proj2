@@ -28,7 +28,9 @@ class Feed extends React.Component {
       }
       )
       .catch((err) => this.setState({ error: true, loading: false }));
-    setInterval(() => {
+
+    this.interval = setInterval(() => {
+      console.log(this.props)
       fetch(`http://127.0.0.1:${this.props.port}/newSnoots`)
       .then((res) => (res.status === 200 ? res.json() : "No posts to show"))
         .then((result) => {
@@ -38,13 +40,17 @@ class Feed extends React.Component {
           index === self.findIndex((t) => (
             t.id === value.id
           )))
-          console.log(result, this.state.tweets, unique)
+
           this.setState(() => {
             return { tweets: unique, loading: false };
           })
         })
         .catch((err) => console.log(err));
     }, 5000);
+  }
+  
+  componentWillUnmount(){
+    clearInterval(this.interval)
   }
 
   render() {
@@ -84,6 +90,7 @@ const mapStateToProps = (state) => {
     imageURL: state.imageURL,
     username: state.username,
     token: state.token,
+    auth: state.auth,
   };
 };
 
