@@ -91,10 +91,10 @@ const Post = (props) => {
         <img className="posterImage" src={props.user?.profile_image ? props.user.profile_image : UserImage} />
         <div>
           <Link
-            to={`/profile/${props.username}`}
+            to={`/profile/${props.user}`}
             className="posterName"
           >
-            {props.username}
+            {props.user}
           </Link>
           <p className="postingDate">
             {date.getDate()} {date.toLocaleString("en", { month: "long" })} at{" "}
@@ -102,12 +102,12 @@ const Post = (props) => {
           </p>
         </div>
       </header>
-      <Link
+      <div
         className="tweet"
-        to={`/${props.username}/${props.post_id.$oid}`}
       >
-        {props.caption}
-      </Link>
+      {props.caption}
+
+      </div>
       <img className="postImage" src={props.image} />
       <div className="engageLinks">
         <a

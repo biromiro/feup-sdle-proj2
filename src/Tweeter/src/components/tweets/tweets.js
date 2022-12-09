@@ -62,7 +62,7 @@ class Tweets extends React.Component {
           !this.state.error &&
           this.state.tweets.map((post) => (
             <Post
-              user={post.user}
+              user={post.username}
               caption={post.message}
               image={post.post_urls ? post.post_urls[0] : null}
               comments={post.comments}

@@ -24,18 +24,23 @@ const ProfileCard = (props) => {
   const [error, setError] = useState(false);
 
   const handleFollow = () => {
-    setFollowers(followers + 1);
-    setYoufollow(!youfollow);
     let url = `http://localhost:${port}/follow/${username}`;
+    if (youfollow) {
+      url = `http://localhost:${port}/unfollow/${username}`;
+    }
     axios
-      .get(url)
+      .put(url)
       .then((response) => {
-        setFollowers(response.data.followers);
-        setYoufollow(response.data.following);
+        console.log(response)
+        if (youfollow) {
+          setFollowers(followers - 1);
+        } else {
+          setFollowers(followers + 1);
+        }
+        setYoufollow(!youfollow);
       })
       .catch((error) => {
-        setFollowers(followers - 1);
-        setYoufollow(!youfollow);
+        console.log(error);
       });
   };
 
@@ -44,6 +49,7 @@ const ProfileCard = (props) => {
     axios
       .get(url)
       .then((response) => {
+        console.log(response)
         setFollowers(response.data.profile_info.followers.length);
         setFollowing(response.data.profile_info.following.length);
         setprofile_image(response.data.profile_image);

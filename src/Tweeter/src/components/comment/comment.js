@@ -31,7 +31,7 @@ const Comment = (props) => {
       <img src={props.user.profile_image} className="posterImage" />
       <div>
         <div>
-          <Link to={`/profile/tweets/${props.user._id.$oid}`}>
+          <Link to={`/profile/${props.user._id.$oid}`}>
             {props.user.username}
           </Link>
           <p>
