@@ -7,38 +7,42 @@ import Spinner from "../spinner/spinner";
 
 const Explore = (props) => {
   const [keyword, setKeyword] = useState("");
-  const [posts, setPosts] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [user, setUser] = useState({});
   const [error, setError] = useState(false);
   const [search, setSearch] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (keyword != "") {
+    if (keyword !== "") {
       setLoading(true);
-      let url = `https://tweeter-test-yin.herokuapp.com/search/${keyword}`;
+      let url = `http://127.0.0.1:${props.port}/profile/${keyword}`;
       axios({
         method: "get",
         url: url,
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: props.token,
         },
       })
-        .then((res) => {
+        .then((res) =>{
           setLoading(false);
           setError(false);
-          setPosts(res.data.posts);
-          setUsers(res.data.users);
-        })
+          setUser(res.data.profile_info);
+        }
+        )
         .catch((err) => {
+          if (err.response.status !== 404) {
+            console.log(err)
+            setError(true);
+          }
           setLoading(false);
-          setError(true);
-        });
+          });
+    } else {
+      setUser({});
     }
   }, [search]);
 
   useEffect(() => {
+    setUser({});
     setError(false);
     setLoading(false);
   }, []);
@@ -69,12 +73,12 @@ const Explore = (props) => {
             Sorry, an error occured. Please try again.
           </p>
         )}
-        {!loading && !error && users.length === 0 && posts.length === 0 && (
+        {!loading && !error && Object.keys(user).length === 0 && (
           <p style={{ display: "flex", justifyContent: "center" }}>
-            Nothing to see here - yet.
+            No results found.
           </p>
         )}
-        {!loading &&
+        {/*!loading &&
           posts.map((post, index) => (
             <Post
               user={post.user}
@@ -89,17 +93,17 @@ const Explore = (props) => {
               retweeted={post.retweeted}
               saved={post.saved}
             />
-          ))}
-        {!loading &&
-          users.map((user, index) => (
+          ))*/}
+        {!loading && Object.keys(user).length !== 0 &&
+          (
             <Bio
-              bio={user.bio}
-              imageURL={user.profile_image}
-              userId={user._id.$oid}
-              username={user.username}
-              key={index}
+              _bio={user?.bio}
+              _imageURL={user?.profile_image}
+              _userId={user.username}
+              _username={user.username}
             />
-          ))}
+          )}
+          {console.log(user)}
       </section>
     </div>
   );
@@ -108,6 +112,7 @@ const Explore = (props) => {
 const mapStateToProps = (state) => {
   return {
     token: state.token,
+    port: state.port,
   };
 };
 

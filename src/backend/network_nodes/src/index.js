@@ -54,17 +54,15 @@ const snootHandler = (msg) => {
 }
 
 const followHandler = (msg) => {
-  console.log(curr_username, msg)
   if (curr_username == msg.follows) {
     profile.profile_info.followers.push(msg.username)
-    console.log(profile)
     node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
   }
 }
 
 const unfollowHandler = (msg) => {
   if (curr_username == msg.unfollows) {
-    profile.profile_info.followers.push(msg.username)
+    profile.profile_info.followers = profile.profile_info.followers.filter((follower) => follower != msg.username)
     node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
   }
 }

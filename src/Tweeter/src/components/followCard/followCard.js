@@ -8,32 +8,29 @@ const FollowCard = (props) => {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState(false);
   useEffect(() => {
-    let url = `https://tweeter-test-yin.herokuapp.com/users/suggestions`;
+    let url = `http://localhost:${props.port}/recommendations`;
     axios({
       method: "get",
       url: url,
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: props.token,
-      },
     })
       .then((res) => {
+        console.log(res)
         setUsers(res.data);
       })
       .catch((err) => setError(true));
-  }, []);
+  }, [props.port]);
 
   return (
     <section className="suggestedUsers">
       <p>Who to follow</p>
       {users.map((user, index) => (
         <UserProfile
-          username={user.username}
-          bio={user.bio}
-          userId={user._id.$oid}
-          profile_image={user.profile_image}
-          you_follow={user.you_follow}
-          followers={user.followers}
+          username={user?.username}
+          bio={user?.bio}
+          userId={user?.username}
+          profile_image={user?.profile_image}
+          you_follow={user?.you_follow}
+          followers={user?.followers}
           user={user}
           key={index}
         />
@@ -53,6 +50,7 @@ const mapStateToProps = (state) => {
     username: state.username,
     error: state.error,
     token: state.token,
+    port: state.port,
   };
 };
 

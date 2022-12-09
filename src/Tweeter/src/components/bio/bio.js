@@ -6,10 +6,10 @@ import UserImage from "../../Images/johndoe.png";
 const Bio = (props) => {
   return (
     <div className="bioComponent">
-      <img src={props.imageURL ? props.imageURL : UserImage} />
-      <p>{props.username}</p>
-      <p>{props.bio}</p>
-      <Link to={`/profile/${props.username}`}>View full profile</Link>
+      <img src={props._imageURL ? props._imageURL : UserImage} />
+      <p>{props._username ? props._username : props.username}</p>
+      <p>{props._bio ? props._bio : props.bio}</p>
+      <Link to={`/profile/${props._username ? props._username : props.username}`}>View full profile</Link>
     </div>
   );
 };

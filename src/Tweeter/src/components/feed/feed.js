@@ -63,7 +63,7 @@ class Feed extends React.Component {
         )}
         {this.state.tweets.map((post, index) => (
           <Post
-            username={post.username}
+            user={post.username}
             caption={post.message}
             image={post.post_urls ? post.post_urls[0] : null}
             comments={post.comments}

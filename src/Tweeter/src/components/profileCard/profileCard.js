@@ -54,7 +54,7 @@ const ProfileCard = (props) => {
         setFollowing(response.data.profile_info.following.length);
         setprofile_image(response.data.profile_image);
         setBio(response.data.bio);
-        setYoufollow(response.data.you_follow);
+        setYoufollow(response.data.profile_info.followers.includes(props.username));
         setLoading(false);
       })
       .catch((error) => {
