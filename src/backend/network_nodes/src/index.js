@@ -313,6 +313,38 @@ app.post('/logout', async function(req, res) {
   process.exit()
 });
 
+//create a port for getting following recommendations
+app.get('/recommendations', async function(req, res) {
+  let recommendations = []
+  console.log("hey");
+  for (const following of profile.profile_info.following) {
+    console.log('Following', following);
+    let saveProfile = profile.profile_info.following;
+    console.log('profile.profile_info.following', profile.profile_info.following);
+    try {
+      console.log(saveProfile);
+      let profile = await node.contentRouting.get(arrayFromString(following))
+      let following_following = JSON.parse(arrayToString(profile)).profile_info.following;
+      console.log('Following following', following_following);
+      for (const following_following_user of following_following) {
+        
+        console.log('inside for loop....');
+        if (!saveProfile.includes(following_following_user) && !recommendations.includes(following_following_user)) {
+          console.log('Adding recommendation ', following_following_user)
+          recommendations.push(following_following_user)
+        // recommendations.push(following_following_user);
+        // console.log('following_following_user', following_following_user)
+        }
+      }
+    } catch (e) {
+      console.log(`Could not get profile for ${following}`)
+    }
+  }
+  console.log('Recommendations', recommendations);
+  res.status(200)
+  res.send(recommendations)
+});
+
 app.listen(app.get('port'), function () {
   console.log(`Example app listening on port ${app.get('port')}!`);
 });
