@@ -7,7 +7,7 @@ import { kadDHT } from '@libp2p/kad-dht'
 import { createFromJSON } from '@libp2p/peer-id-factory'
 import { fromString as arrayFromString } from "uint8arrays/from-string";
 import { toString as arrayToString } from "uint8arrays/to-string";
-//import { mdns } from '@libp2p/mdns'
+import { mdns } from '@libp2p/mdns'
 import { pubsubPeerDiscovery } from '@libp2p/pubsub-peer-discovery'
 import fs from 'fs'
 
@@ -33,6 +33,10 @@ const bootstrap = await createLibp2p({
   pubsub: gossipsub({ allowPublishToZeroPeers: true }),
   dht: kadDHT({ enabled: true, randomWalk: { enabled: true } }),
   peerDiscovery:[
+    mdns({
+      interval: 1000,
+      enabled: true
+    }),
     pubsubPeerDiscovery({
       interval: 1000,
     })

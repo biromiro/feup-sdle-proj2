@@ -23,6 +23,7 @@ import { bootstrap } from '@libp2p/bootstrap'
 import { pubsubPeerDiscovery } from '@libp2p/pubsub-peer-discovery'
 import bodyParser from 'body-parser'
 import { v4 as uuidv4 } from 'uuid';
+import { mdns } from '@libp2p/mdns'
 
 const curr_username = process.argv[2]
 const provider_info_channels = ['__$provider_info_1__','__$provider_info_2__','__$provider_info_3__']
@@ -103,6 +104,10 @@ const createNode = (bootstrapers) => {
     ],
     pubsub: gossipsub({ allowPublishToZeroPeers: true, emitSelf: true }),
     peerDiscovery: [
+      mdns({
+        interval: 1000,
+        enabled: true
+      }),
       bootstrap({
         interval: 60e3,
         list: bootstrapers

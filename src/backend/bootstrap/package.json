@@ -34,6 +34,7 @@
     "@libp2p/bootstrap": "^5.0.1",
     "@libp2p/floodsub": "^5.0.0",
     "@libp2p/kad-dht": "^6.0.1",
+    "@libp2p/mdns": "^5.1.0",
     "@libp2p/mplex": "^7.1.0",
     "@libp2p/peer-id": "^1.1.16",
     "@libp2p/peer-id-factory": "^1.0.19",
