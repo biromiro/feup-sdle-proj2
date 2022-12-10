@@ -11,6 +11,7 @@ import { toString as arrayToString } from "uint8arrays/to-string";
 import { pubsubPeerDiscovery } from '@libp2p/pubsub-peer-discovery'
 import fs from 'fs'
 
+const provider_info_channel = `__$provider_info_${process.argv[2]}__`
 const bootstrapVals = JSON.parse(fs.readFileSync(`./keys/${process.argv[2]}.json`, 'utf8'));
 
 const peerID = await createFromJSON(bootstrapVals.peerID)
@@ -46,7 +47,40 @@ const bootstrap = await createLibp2p({
 
 console.log(`libp2p bootstrap starting with id: ${bootstrap.peerId.toString()}`)
 
+const followHandler = async (msg) => {
+  const profile = await bootstrap.contentRouting.get(arrayFromString(msg.follows))
+  const parsedProfile = JSON.parse(arrayToString(profile))
+  parsedProfile.profile_info.followers.push(msg.username)
+  bootstrap.contentRouting.put(arrayFromString(msg.follows), arrayFromString(JSON.stringify(parsedProfile)))
+}
+
+const unfollowHandler = async (msg) => {
+  const profile = await bootstrap.contentRouting.get(arrayFromString(msg.unfollows))
+  const parsedProfile = JSON.parse(arrayToString(profile))
+  profile.profile_info.followers = profile.profile_info.followers.filter((follower) => follower != msg.username)
+  bootstrap.contentRouting.put(arrayFromString(msg.unfollows), arrayFromString(JSON.stringify(parsedProfile)))
+}
+
+const setUpEventListeners = async () => {
+  bootstrap.pubsub.subscribe(provider_info_channel)
+
+  bootstrap.pubsub.addEventListener("message", (evt) => {
+    if (evt.detail.topic == "_peer-discovery._p2p._pubsub") return
+    const msg = JSON.parse(arrayToString(evt.detail.data))
+
+    if (msg.type == "follow") {
+      console.log(`Node ${bootstrap.peerId.toString()} received message on topic ${evt.detail.topic}: ${msg.username} is now following ${msg.follows}`)
+      followHandler(msg)
+    } else if (msg.type == "unfollow") {
+      console.log(`Node ${bootstrap.peerId.toString()} received message on topic ${evt.detail.topic}: ${msg.username} is no longer following ${msg.unfollows}`)
+      unfollowHandler(msg)
+    }
+  })
+}
+
 await bootstrap.start()
+
+await setUpEventListeners()
 
 const bootstrapMultiaddrs = bootstrap.getMultiaddrs()
 

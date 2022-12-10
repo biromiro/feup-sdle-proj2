@@ -23,7 +23,9 @@ import { bootstrap } from '@libp2p/bootstrap'
 import { pubsubPeerDiscovery } from '@libp2p/pubsub-peer-discovery'
 import bodyParser from 'body-parser'
 import { v4 as uuidv4 } from 'uuid';
+
 const curr_username = process.argv[2]
+const provider_info_channels = ['__$provider_info_1__','__$provider_info_2__','__$provider_info_3__']
 let profile = undefined
 let timeline = []
 let newSnoots = []
@@ -170,8 +172,12 @@ const initializeNode = async (node) => {
   await initializeTimeline(node)
 }
 
-const initializeTimeline = async (node) => {
-  for (const following of profile.profile_info.following) {
+const removeFromTimeline = (username) => {
+  timeline = timeline.filter((snoot) => snoot.username != username)
+}
+
+const updateTimeline = async (node, users) => {
+  for (const following of users) {
     try {
       let profile = await node.contentRouting.get(arrayFromString(following))
       timeline.push(...JSON.parse(arrayToString(profile)).posts)
@@ -181,7 +187,40 @@ const initializeTimeline = async (node) => {
 
   }
   timeline.sort((a, b) => new Date(b.date) - new Date(a.date))
+}
+
+const initializeTimeline = async (node) => {
+  await updateTimeline(node, profile.profile_info.following)
   node.pubsub.subscribe(curr_username)
+}
+
+const getProviders = async (username) => {
+  const cid = await getCID(username)
+  console.log(`CID(${username}): ${cid}`)
+  try {
+    const providers = await all(node.contentRouting.findProviders(cid, { timeout: 3000, maxNumProviders: 5 }))
+    return providers
+  } catch (e) {
+    console.log(`Could not find providers for ${username}`)
+    return []
+  }
+}
+
+const sendMessageIfNoProviders = async (username, message) => {
+  const providers = await getProviders(username)
+  for (const provider of providers) {
+    try {
+      const connection = await node.dial(provider.id)
+      console.log(`Found connection (${connection.id}) for ${username} at ${provider.id}`)
+      return
+    } catch (e) {
+      console.log(e)
+      continue
+    }
+  }
+  const random_provider_info_channel = provider_info_channels[Math.floor(Math.random() * provider_info_channels.length)];
+  node.pubsub.publish(random_provider_info_channel, arrayFromString(JSON.stringify(message)))
+  console.log(`No providers for ${username}, sending message to provider info channel`)
 }
 
 const node = await genNode()
@@ -226,6 +265,9 @@ app.put("/follow/:username", function (req, res) {
 
   node.pubsub.publish(username, arrayFromString(JSON.stringify(followMessage)))
 
+  sendMessageIfNoProviders(username, followMessage)
+  updateTimeline(node, [username])
+  
   res.status(200)
   res.send(followMessage);
   node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
@@ -248,6 +290,9 @@ app.put("/unfollow/:username", function (req, res) {
   }
 
   node.pubsub.publish(username, arrayFromString(JSON.stringify(unfollowMessage)))
+
+  sendMessageIfNoProviders(username, unfollowMessage)
+  removeFromTimeline(username)
 
   res.status(200)
   res.send(unfollowMessage);
@@ -320,7 +365,7 @@ app.get('/recommendations', async function(req, res) {
       let profile = await node.contentRouting.get(arrayFromString(following))
       let following_following = JSON.parse(arrayToString(profile)).profile_info;
       for (const following_following_user of following_following.following) {
-          if (!saveProfile.includes(following_following_user) && !recommendations.includes(following_following_user)) {
+          if (!saveProfile.includes(following_following_user) && !recommendations.includes(following_following_user) && following_following_user !== curr_username) {
           recommendations.push(following_following_user)
         }
       }
