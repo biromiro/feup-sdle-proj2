@@ -109,7 +109,7 @@ const Post = (props) => {
 
       </div>
       <img className="postImage" src={props.image} />
-      <div className="engageLinks">
+      {/*<div className="engageLinks">
         <a
           className="engageLink"
           style={retweeted ? { color: "#27AE60" } : { color: "initial" }}
@@ -128,7 +128,7 @@ const Post = (props) => {
           </span>
           <span>{liked ? "Liked" : "Like"}</span>
         </a>
-      </div>
+      </div>*/}
     </article>
   );
 };

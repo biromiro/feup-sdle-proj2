@@ -11,9 +11,6 @@ const ProfileDropdown = (props) => {
           <span className="material-icons-outlined">account_circle</span>
           My Profile
         </Link>
-        <Link to="/settings" className="dropdownLink">
-          <span className="material-icons-outlined">settings</span>Settings
-        </Link>
       </React.Fragment>
       <Link to="/" className="dropdownLink logout" onClick={props.logout}>
         <span className="material-icons-outlined">logout</span>Logout

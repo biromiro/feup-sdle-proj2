@@ -7,35 +7,29 @@ import "./userProfile.css";
 
 const UserProfile = (props) => {
   const [youfollow, setYoufollow] = useState(props.you_follow);
-  const [followers, setFollowers] = useState(props.followers);
 
   const handleFollow = () => {
-    setFollowers(followers + 1);
-    setYoufollow(!youfollow);
-    let url = `https://tweeter-test-yin.herokuapp.com/${props.user._id.$oid}/follow`;
+    let url = `http://localhost:${props.port}/follow/${props.username}`;
+    if (youfollow) {
+      url = `http://localhost:${props.port}/unfollow/${props.username}`;
+    }
     axios
-      .get(url, {
-        headers: {
-          Authorization: props.token,
-        },
-      })
+      .put(url)
       .then((response) => {
-        setFollowers(response.data.followers);
-        setYoufollow(response.data.following);
+        console.log(response)
+        setYoufollow(!youfollow);
       })
       .catch((error) => {
-        setFollowers(followers - 1);
-        setYoufollow(!youfollow);
+        console.log(error);
       });
   };
 
   return (
     <section className="suggestedUserProfile">
       <div>
-        <img src={props.profile_image}></img>
+        <img src={props.profile_image ?  props.profile_image : HeaderImage}></img>
         <div>
-          <Link to={`/profile/${props.userId}`}>{props.username}</Link>
-          <a>{followers} followers</a>
+          <Link to={`/profile/${props.username}`}>{props.username}</Link>
         </div>
         <button onClick={handleFollow}>
           {youfollow ? "Following" : "Follow"}
@@ -49,7 +43,7 @@ const UserProfile = (props) => {
 
 const mapStateToProps = (state) => {
   return {
-    token: state.token,
+    port: state.port,
   };
 };
 

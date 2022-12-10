@@ -25,7 +25,7 @@ const FollowCard = (props) => {
       <p>Who to follow</p>
       {users.map((user, index) => (
         <UserProfile
-          username={user?.username}
+          username={user}
           bio={user?.bio}
           userId={user?.username}
           profile_image={user?.profile_image}
