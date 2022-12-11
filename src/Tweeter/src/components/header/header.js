@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "./header.css";
-import Tweeter from "../../Images/tweeter.svg";
-import TweeterMobile from "../../Images/tweeter-small.svg";
+import Tweeter from "../../Images/snooter.png";
 import UserImage from "../../Images/johndoe.png";
 import ProfileDropdown from "../profilebackdrop/profilebackdrop";
 import { Link, NavLink } from "react-router-dom";
@@ -14,7 +13,6 @@ const Header = (props) => {
     <header className="header">
       <Link to="/" className="homePage">
         <img src={Tweeter} className="tweeter" />
-        <img src={TweeterMobile} className="tweeterMobile" />
         {/* <h1 className="appName">Tweeter</h1> */}
       </Link>
       <nav className="navBar">
@@ -24,9 +22,6 @@ const Header = (props) => {
         <NavLink className="navLink" to="/explore">
           Explore
         </NavLink>
-        {/*<NavLink className="navLink" to="/bookmarks">
-          Bookmarks
-  </NavLink>*/}
       </nav>
       <div className="userProfile">
         <a
