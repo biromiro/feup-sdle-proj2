@@ -61,7 +61,7 @@ const followHandler = async (msg) => {
 const unfollowHandler = async (msg) => {
   const profile = await bootstrap.contentRouting.get(arrayFromString(msg.unfollows))
   const parsedProfile = JSON.parse(arrayToString(profile))
-  profile.profile_info.followers = profile.profile_info.followers.filter((follower) => follower != msg.username)
+  parsedProfile.profile_info.followers = parsedProfile.profile_info.followers.filter((follower) => follower != msg.username)
   bootstrap.contentRouting.put(arrayFromString(msg.unfollows), arrayFromString(JSON.stringify(parsedProfile)))
 }
 

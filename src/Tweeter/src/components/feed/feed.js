@@ -22,6 +22,7 @@ class Feed extends React.Component {
       },
     })
       .then((res) =>{
+        console.log(res)
         this.setState(() => {
           return { tweets: res.data, loading: false };
         })
@@ -30,16 +31,18 @@ class Feed extends React.Component {
       .catch((err) => this.setState({ error: true, loading: false }));
 
     this.interval = setInterval(() => {
-      console.log(this.props)
       fetch(`http://127.0.0.1:${this.props.port}/newSnoots`)
-      .then((res) => (res.status === 200 ? res.json() : "No posts to show"))
+      .then((res) => (res.status === 200 ? res.json() : []))
         .then((result) => {
+          console.log(result)
           const newPostsSorted = [...result, ...this.state.tweets].sort((a, b) => a.date < b.date ? 1 : -1);
+          console.log(result, this.state.tweets, newPostsSorted)
 
           const unique = newPostsSorted.filter((value, index, self) =>
           index === self.findIndex((t) => (
             t.id === value.id
           )))
+          console.log(unique)
 
           this.setState(() => {
             return { tweets: unique, loading: false };
