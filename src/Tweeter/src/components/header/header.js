@@ -15,7 +15,6 @@ const Header = (props) => {
       <Link to="/" className="homePage">
         <img src={Tweeter} className="tweeter" />
         <img src={TweeterMobile} className="tweeterMobile" />
-        {/* <h1 className="appName">Tweeter</h1> */}
       </Link>
       <nav className="navBar">
         <NavLink className="navLink" to="/">
@@ -24,9 +23,6 @@ const Header = (props) => {
         <NavLink className="navLink" to="/explore">
           Explore
         </NavLink>
-        {/*<NavLink className="navLink" to="/bookmarks">
-          Bookmarks
-  </NavLink>*/}
       </nav>
       <div className="userProfile">
         <a

@@ -65,27 +65,7 @@ class LoginPage extends React.Component {
               onMouseOver={() => this.setState({ focus: { username: true } })}
               onChange={this.inputChangedHandler}
             />
-            {/*<i className="material-icons-outlined">lock</i>
-            <input
-              name="password"
-              type="password"
-              placeholder="Password"
-              onMouseOver={() => this.setState({ focus: { password: true } })}
-              onMouseLeave={() => this.setState({ focus: { password: false } })}
-              onChange={this.inputChangedHandler}
-            />
-    <button>Start tweeting now</button>*/}
           </form>
-          {/* <div>
-          {/* <p>or continue with these social profile</p> */}
-          {/* <i class="fa fa-google"></i>
-                <i class="fa fa-facebook"></i>
-                <i class="fa fa-twitter"></i>
-                <i class="fa fa-github"></i> 
-        </div> 
-          <p>
-            Don't have an account yet? <Link to="/signup">Register</Link>
-          </p>*/}
         </div>
       </Auth>
     );

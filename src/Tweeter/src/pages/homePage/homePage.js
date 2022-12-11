@@ -4,7 +4,6 @@ import FollowCard from "../../components/followCard/followCard";
 import Container from "../../components/container/container";
 import SideBar from "../../components/sidebar/sidebar";
 import HomeContainer from "../../components/homeContainer/homeContainer";
-import TrendsCard from "../../components/trendsCard/trendsCard";
 import Feed from "../../components/feed/feed";
 import Bio from "../../components/bio/bio";
 
@@ -20,8 +19,6 @@ const HomePage = (props) => {
         <SideBar>
           <Bio />
           <FollowCard />
-          {/* <TrendsCard />
-          <TrendsCard />*/}
         </SideBar>
       </Container>
     </div>

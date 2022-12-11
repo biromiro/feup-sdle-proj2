@@ -1,4 +1,3 @@
-import { render } from "@testing-library/react";
 import Post from "../post/post";
 import React from "react";
 import axios from "axios";
@@ -12,7 +11,7 @@ class Feed extends React.Component {
   };
 
   componentDidMount() {
-    let url = `http://127.0.0.1:${this.props.port}/timeline`;
+    let url = `http://localhost:${this.props.port}/timeline`;
     axios({
       method: "get",
       url: url,

@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { Component } from "react";
 import "./createtweet.css";
 import * as actions from "../../store/action";
 import { connect } from "react-redux";
@@ -39,7 +39,7 @@ class CreateTweet extends Component {
 
     console.log(data)
 
-    let url = `http://127.0.0.1:${this.props.port}/snoot`;
+    let url = `http://localhost:${this.props.port}/snoot`;
     console.log(url)
     axios({
       method: 'post',
@@ -137,39 +137,6 @@ class CreateTweet extends Component {
             </div>
           </div>
           <div className="newtweetIcons">
-            {/*<label htmlFor="file-input">
-              <i className="material-icons-outlined tweetImageIcon">image</i>
-            </label>
-            <input
-              type="file"
-              accept="image"
-              id="file-input"
-              name="image-upload"
-              onChange={this.onImageChange}
-            />
-            <div onClick={this.setpermission}>
-              <p>
-                <i className="material-icons-outlined">public</i>
-                {this.state.permission == 1
-                  ? "Everyone can reply"
-                  : "Only people you follow can reply"}
-              </p>
-              {this.state.showpermission ? (
-                <div className="replyPermission">
-                  <p>Who can reply?</p>
-                  <p>Choose who can reply to this Tweet.</p>
-                  <div>
-                    <a onClick={() => this.setPermission(1)}>
-                      <i className="material-icons-outlined">public</i>Everyone
-                    </a>
-                    <a onClick={() => this.setPermission(0)}>
-                      <i className="material-icons-outlined">group</i>People you
-                      follow
-                    </a>
-                  </div>
-                </div>
-              ) : null}
-              </div>*/}
             <button id="tweetButton" onClick={this.postTweet}>
               Tweet
             </button>
