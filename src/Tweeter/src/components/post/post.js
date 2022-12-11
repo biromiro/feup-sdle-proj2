@@ -102,6 +102,11 @@ const Post = (props) => {
           </p>
         </div>
       </header>
+      {props.topic !== "" ? (<div
+        className="topic"
+      >
+        {props.topic}
+      </div>) : null }
       <div
         className="tweet"
       >

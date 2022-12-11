@@ -51,6 +51,7 @@ const snootHandler = (msg) => {
     id: msg.id,
     username: msg.username,
     message: msg.message,
+    topic: msg.topic,
     date: msg.date
   }
   timeline.unshift(snoot)
@@ -346,6 +347,7 @@ app.post("/snoot", function (req, res) {
     id: uuidv4(),
     username: curr_username,
     message: data.message,
+    topic: data.topic,
     date: new Date().toISOString()
   }
   // limit to k snoots on profile
