@@ -114,10 +114,10 @@ class CreateTweet extends Component {
           <p className="tweetFail">An error occured.</p>
         ) : null}
         <div className="createTweet">
-          <p>Tweet something</p>
+          <p>Say something</p>
           <textarea
                 id="tweetTopic"
-                placeholder="On this topic..."
+                placeholder="Topic..."
                 className="tweetBox"
                 onChange={this.handleNewTopic}
                 maxLength="50"
@@ -138,7 +138,7 @@ class CreateTweet extends Component {
           </div>
           <div className="newtweetIcons">
             <button id="tweetButton" onClick={this.postTweet}>
-              Tweet
+              Snoot
             </button>
           </div>
         </div>

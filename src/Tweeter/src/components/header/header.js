@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import "./header.css";
-import Tweeter from "../../Images/tweeter.svg";
-import TweeterMobile from "../../Images/tweeter-small.svg";
 import UserImage from "../../Images/johndoe.png";
 import ProfileDropdown from "../profilebackdrop/profilebackdrop";
 import { Link, NavLink } from "react-router-dom";
@@ -12,10 +10,6 @@ const Header = (props) => {
 
   return (
     <header className="header">
-      <Link to="/" className="homePage">
-        <img src={Tweeter} className="tweeter" />
-        <img src={TweeterMobile} className="tweeterMobile" />
-      </Link>
       <nav className="navBar">
         <NavLink className="navLink" to="/">
           Home

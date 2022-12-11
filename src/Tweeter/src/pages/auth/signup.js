@@ -1,5 +1,4 @@
 import React from "react";
-import Tweeter from "../../Images/tweeter.svg";
 import "./signup.css";
 import Auth from "../../components/auth/auth";
 import Loader from "../../components/loader/loader";
@@ -42,11 +41,8 @@ class SignupPage extends React.Component {
       <Auth>
         {this.props.loading ? <Loader /> : null}
         <div className="signupPage">
-          <Link to="/">
-            <img src={Tweeter} className="tweeterHome" />
-          </Link>
           <p>Join thousands of tweeps from around the world </p>
-          <p>Happening now. Join Tweeter today.</p>
+          <p>Happening now. Join today.</p>
           {errorMessage}
           <form autoComplete="off" onSubmit={this.submitHandler}>
             <i className="material-icons-outlined">person</i>

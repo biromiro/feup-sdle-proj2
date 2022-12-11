@@ -1,6 +1,4 @@
 .profileCard {
-  /* position: absolute;
-    bottom: 100px; */
   width: 70vw;
   height: 200px;
   background-color: #ffffff;
@@ -10,8 +8,6 @@
   align-items: center;
   box-shadow: 0px 2px 4px 0px #0000000d;
   border-radius: 12px;
-  /* margin-bottom: 100px; */
-  /* margin-top: 300px; */
 }
 
 .profileImage {
@@ -36,9 +32,9 @@
   height: 32px;
   width: 101px;
   border-radius: 4px;
-  background: #2f80ed;
+  background: #288000;
   border-style: none;
-  border-color: #2f80ed;
+  border-color: #288000;
   color: #ffffff;
 }
 

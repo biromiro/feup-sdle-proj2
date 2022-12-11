@@ -11,9 +11,6 @@ const ProfilePage = (props) => {
   return (
     <div className="editProfile">
       <header className="profileHeader">
-        <Link to="/">
-          <img src={Tweeter} />
-        </Link>
         <div className="userProfile">
           <a
             className="userSummary"
