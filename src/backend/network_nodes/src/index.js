@@ -27,10 +27,48 @@ import { mdns } from '@libp2p/mdns'
 
 const curr_username = process.argv[2]
 const provider_info_channels = ['__$provider_info_1__','__$provider_info_2__','__$provider_info_3__']
-let profile = undefined
+let profile = {
+  last_updated: new Date().toISOString(),
+  profile_info: {
+    username: curr_username,
+    following: [],
+    followers: [],
+  },
+  posts: []
+}
 let timeline = []
 let newSnoots = []
-let isInitialized = false
+
+const updateProfileDate = () => {
+  profile.last_updated = new Date().toISOString()
+}
+
+const saveProfileLocally = () => {
+  fs.writeFile(`../network_nodes/profiles/${curr_username}.json`, JSON.stringify(profile), (err) => {
+    if (err) {
+      console.log('Error saving profile locally: ' + err)
+    }
+  })
+}
+
+const saveProfileAndDie = () => {
+  fs.writeFile(`../network_nodes/profiles/${curr_username}.json`, JSON.stringify(profile), (err) => {
+    if (err) {
+      console.log('Error saving profile locally: ' + err)
+    }
+    process.exit(0)
+  })
+}
+
+const loadLocalProfile = () => {
+  try {
+    const data = fs.readFileSync(`../network_nodes/profiles/${curr_username}.json`)
+    return JSON.parse(data)
+  } catch (err) {
+    console.log('Error loading local profile: ' + err)
+    return undefined
+  }
+}
 
 const getCID = async (data) => {
   const bytes = json.encode({ username: data })
@@ -61,6 +99,8 @@ const snootHandler = (msg) => {
 const followHandler = (msg) => {
   if (curr_username == msg.follows) {
     profile.profile_info.followers.push(msg.username)
+    updateProfileDate()
+    saveProfileLocally()
     node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
   }
 }
@@ -68,6 +108,8 @@ const followHandler = (msg) => {
 const unfollowHandler = (msg) => {
   if (curr_username == msg.unfollows) {
     profile.profile_info.followers = profile.profile_info.followers.filter((follower) => follower != msg.username)
+    updateProfileDate()
+    saveProfileLocally()
     node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
   }
 }
@@ -155,32 +197,36 @@ const initAsProvider = async (node) => {
     
 
 const initializeNode = async (node) => {
+  await initAsProvider(node)
   await setUpEventListeners()
+  const local_profile = loadLocalProfile()
+  console.log("Local profile: ", local_profile ? local_profile : "None")
   try {
-    const dht_profile = await node.contentRouting.get(arrayFromString(curr_username))
+    const dht_profile = JSON.parse(arrayToString(await node.contentRouting.get(arrayFromString(curr_username))))
     console.log("Profile already exists in DHT")
-    profile = JSON.parse(arrayToString(dht_profile))
-    console.log(curr_username, profile)
+    if (local_profile.last_updated > dht_profile.last_updated) {
+      console.log("Local profile is more recent than DHT profile")
+      profile = local_profile
+      updateProfileDate()
+      node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
+    } else {
+      console.log("DHT profile is more recent than local profile")
+      profile = dht_profile
+      saveProfileLocally()
+    }
     for (const following of profile.profile_info.following) {
       node.pubsub.subscribe(following)
     }
   } catch (e) {
     console.log("Profile does not exist in DHT")
-    profile = {
-      profile_info: {
-        username: curr_username,
-        following: [],
-        followers: [],
-      },
-      posts: [
-        {
-          id: uuidv4(),
-          username: process.argv[2],
-          message: `Hello World, I'm ${curr_username}`,
-          date: new Date().toISOString()
-        },
-      ]
+    if (local_profile) {
+      console.log("Local profile exists")
+      profile = local_profile
+    } else {
+      console.log("Local profile does not exist")
     }
+    updateProfileDate()
+    saveProfileLocally()
     node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
   }
   node.pubsub.subscribe(curr_username)
@@ -246,11 +292,7 @@ await node.start()
 
 console.log(`Node started with id: ${node.peerId.toString()}`)
 
-initializeNode(node).then(async () => {
-  console.log("Node initialized")
-  isInitialized = true
-  await initAsProvider(node)
-})
+await initializeNode(node)
 
 const app = express();
 const maddress = node.getMultiaddrs().at(-1).nodeAddress()
@@ -264,12 +306,6 @@ app.get("/", function (req, res) {
 });
 
 app.put("/follow/:username", function (req, res) {
-  if (!isInitialized) {
-    res.status(404)
-    res.send("Node not initialized");
-    return
-  }
-  
   let username = req.params.username;
   if (profile.profile_info.following.includes(username)) {
     res.status(404)
@@ -293,16 +329,13 @@ app.put("/follow/:username", function (req, res) {
   
   res.status(200)
   res.send(followMessage);
+  
+  updateProfileDate()
+  saveProfileLocally()
   node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
 });
 
 app.put("/unfollow/:username", function (req, res) {
-  if (!isInitialized) {
-    res.status(404)
-    res.send("Node not initialized");
-    return
-  }
-
   let username = req.params.username;
   if (!profile.profile_info.following.includes(username)) {
     res.status(404)
@@ -325,16 +358,12 @@ app.put("/unfollow/:username", function (req, res) {
 
   res.status(200)
   res.send(unfollowMessage);
+  updateProfileDate()
+  saveProfileLocally()
   node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
 });
 
 app.post("/snoot", function (req, res) {
-  if (!isInitialized) {
-    res.status(404)
-    res.send("Node not initialized");
-    return
-  }
-
   const data = req.body;
   console.log(data)
   if (data.message == null) {
@@ -356,6 +385,8 @@ app.post("/snoot", function (req, res) {
 
   res.status(200)
   res.send(post);
+  updateProfileDate()
+  saveProfileLocally()
   node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
 });
 
@@ -378,13 +409,7 @@ app.get("/timeline", function (req, res) {
 });
 
 app.get('/newSnoots', async function(req, res) {
-  if (!isInitialized) {
-    res.status(404)
-    res.send("Node not initialized");
-    return
-  }
-  
-  if (newSnoots.length !== 0)
+if (newSnoots.length !== 0)
     console.log("Sent new Snoots")
   res.status(200)
   res.send(newSnoots)
@@ -395,7 +420,7 @@ app.post('/logout', async function(req, res) {
   await node.stop()
   console.log('Logged out and stopped node')
   res.status(200).send("Logged out")
-  process.exit()
+  saveProfileAndDie()
 });
 
 //create a port for getting following recommendations
