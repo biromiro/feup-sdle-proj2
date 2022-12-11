@@ -4,20 +4,20 @@
   border-top: 1px solid #e0e0e0;
 }
 
-.suggestedUserProfile > div {
+.suggestedUserProfile>div {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
 }
 
-.suggestedUserProfile > div > img {
+.suggestedUserProfile>div>img {
   width: 42px;
   height: 42px;
   border-radius: 8px;
   object-fit: cover;
 }
 
-.suggestedUserProfile > div a {
+.suggestedUserProfile>div a {
   font-family: Poppins;
   font-size: 16px;
   font-weight: 500;
@@ -26,7 +26,7 @@
   display: block;
 }
 
-.suggestedUserProfile > div a:nth-child(2) {
+.suggestedUserProfile>div a:nth-child(2) {
   font-family: Noto Sans;
   font-size: 12px;
   font-style: normal;
@@ -35,8 +35,8 @@
   color: #828282;
 }
 
-.suggestedUserProfile > div > button {
-  background: #288000;
+.suggestedUserProfile>div>button {
+  background: #FFCC80;
   font-family: Noto Sans;
   font-size: 12px;
   font-weight: 500;
@@ -48,14 +48,14 @@
   border-style: none;
 }
 
-.suggestedUserProfile > img {
+.suggestedUserProfile>img {
   width: 100%;
   height: 100px;
   object-fit: cover;
   border-radius: 8px;
 }
 
-.suggestedUserProfile > p {
+.suggestedUserProfile>p {
   font-family: Noto Sans;
   font-size: 14px;
   font-weight: 500;

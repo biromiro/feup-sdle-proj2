@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./header.css";
+import Tweeter from "../../Images/snooter.png";
 import UserImage from "../../Images/johndoe.png";
 import ProfileDropdown from "../profilebackdrop/profilebackdrop";
 import { Link, NavLink } from "react-router-dom";
@@ -10,6 +11,10 @@ const Header = (props) => {
 
   return (
     <header className="header">
+      <Link to="/" className="homePage">
+        <img src={Tweeter} className="tweeter" />
+        {/* <h1 className="appName">Tweeter</h1> */}
+      </Link>
       <nav className="navBar">
         <NavLink className="navLink" to="/">
           Home

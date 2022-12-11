@@ -1,7 +1,7 @@
 .createTweet {
   min-height: 200px;
   height: auto;
-  border: 1px solid #288000;
+  border: 1px solid #FFCC80;
   padding: 16px;
   box-shadow: 0px 2px 4px 0px #0000000d;
   background: #ffffff;
@@ -16,9 +16,9 @@
   font-weight: 600;
   line-height: 18px;
   margin-bottom: 8px;
-  border-bottom: 1px solid #288000;
+  border-bottom: 1px solid #FFCC80;
   padding-bottom: 8px;
-  color: #288000;
+  color: #FFCC80;
 }
 
 #tweetButton {
@@ -26,7 +26,7 @@
   width: 101px;
   border-radius: 4px;
   border-style: none;
-  background-color: #288000;
+  background-color: #FFCC80;
   margin-top: 16px;
 }
 
@@ -69,13 +69,13 @@ div.tweetbox {
 
 .newtweetIcons i {
   margin-right: 12px;
-  color: #288000;
+  color: #FFCC80;
 }
 
 .newtweetIcons>div p {
   display: flex;
   align-items: center;
-  color: #288000;
+  color: #FFCC80;
   font-family: Noto Sans;
   font-size: 12px;
   font-weight: 500;
@@ -92,7 +92,7 @@ div.tweetbox {
   height: 32px;
   width: 81px;
   border-radius: 4px;
-  background-color: #288000;
+  background-color: #FFCC80;
   color: #ffffff;
   border-style: none;
 }

@@ -4,6 +4,7 @@
   align-items: center;
   margin-bottom: 16px;
 }
+
 .searchBox {
   background: #ffffff;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
@@ -42,7 +43,7 @@
   height: 32px;
   width: 85px;
   border-radius: 4px;
-  background: #288000;
+  background: #FFCC80;
   color: #ffffff;
   font-family: Noto Sans;
   font-size: 12px;

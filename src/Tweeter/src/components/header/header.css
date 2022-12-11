@@ -7,9 +7,11 @@
   background-color: #ffffff;
   /* margin-bottom: 32px; */
 }
+
 a {
   text-decoration: none;
 }
+
 .homePage {
   display: flex;
   align-items: center;
@@ -39,7 +41,7 @@ a {
 }
 
 .navLink.active {
-  color: #288000;
+  color: #FFCC80;
   /* border-bottom: 3px solid #2f80ed;
   border-radius: 8px 8px 0px 0px; */
 }
@@ -90,6 +92,11 @@ button:hover {
   cursor: pointer;
 }
 
+
+.tweeter {
+  width: 200px;
+}
+
 @media (min-width: 768px) {
   .tweeterMobile {
     display: none;
@@ -100,14 +107,15 @@ button:hover {
   .navBar {
     display: none;
   }
-  .tweeter {
-    display: none;
-  }
+
+  .tweeter {}
+
   .header {
     /* margin: 16px; */
     height: 50px;
     justify-content: space-between;
   }
+
   .username {
     display: none;
   }
