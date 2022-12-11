@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Post from "../post/post";
 import { connect } from "react-redux";
 import Bio from "../bio/bio";
 import Spinner from "../spinner/spinner";
+import Post from "../post/post";
 
 const Explore = (props) => {
   const [keyword, setKeyword] = useState("");

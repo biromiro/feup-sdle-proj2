@@ -1,6 +1,6 @@
 import React from "react";
-import Tweeter from "../../Images/tweeter.svg";
 import "./login.css";
+import Tweeter from "../../Images/snooter.png";
 import Auth from "../../components/auth/auth";
 import Loader from "../../components/loader/loader";
 import { Link } from "react-router-dom";
@@ -50,11 +50,11 @@ class LoginPage extends React.Component {
       <Auth>
         {this.props.loading ? <Loader /> : null}
         <div className="signupPage">
-          <Link to="/">
+          <div className="tweeterBox">
             <img src={Tweeter} className="tweeterHome" />
-          </Link>
-          <p>Join thousands of tweeps from around the world </p>
-          <p>Happening now. Join Tweeter today.</p>
+          </div>
+          <p>Join thousands of snoots from around the world </p>
+          <p>Happening now. Join today.</p>
           {errorMessage}
           <form onSubmit={this.submitHandler}>
             <i className="material-icons-outlined">person</i>
@@ -65,27 +65,7 @@ class LoginPage extends React.Component {
               onMouseOver={() => this.setState({ focus: { username: true } })}
               onChange={this.inputChangedHandler}
             />
-            {/*<i className="material-icons-outlined">lock</i>
-            <input
-              name="password"
-              type="password"
-              placeholder="Password"
-              onMouseOver={() => this.setState({ focus: { password: true } })}
-              onMouseLeave={() => this.setState({ focus: { password: false } })}
-              onChange={this.inputChangedHandler}
-            />
-    <button>Start tweeting now</button>*/}
           </form>
-          {/* <div>
-          {/* <p>or continue with these social profile</p> */}
-          {/* <i class="fa fa-google"></i>
-                <i class="fa fa-facebook"></i>
-                <i class="fa fa-twitter"></i>
-                <i class="fa fa-github"></i> 
-        </div> 
-          <p>
-            Don't have an account yet? <Link to="/signup">Register</Link>
-          </p>*/}
         </div>
       </Auth>
     );

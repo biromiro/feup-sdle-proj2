@@ -1,6 +1,4 @@
 .profileCard {
-  /* position: absolute;
-    bottom: 100px; */
   width: 70vw;
   height: 200px;
   background-color: #ffffff;
@@ -10,8 +8,6 @@
   align-items: center;
   box-shadow: 0px 2px 4px 0px #0000000d;
   border-radius: 12px;
-  /* margin-bottom: 100px; */
-  /* margin-top: 300px; */
 }
 
 .profileImage {
@@ -36,9 +32,9 @@
   height: 32px;
   width: 101px;
   border-radius: 4px;
-  background: #2f80ed;
+  background: #FFCC80;
   border-style: none;
-  border-color: #2f80ed;
+  border-color: #FFCC80;
   color: #ffffff;
 }
 
@@ -88,6 +84,7 @@
     display: flex;
     flex-direction: column;
   }
+
   .profileImage {
     /* display: block; */
     margin: auto;
@@ -95,6 +92,7 @@
        top: 90px;
        margin-left: calc((80% - 300px) * 2); */
   }
+
   .Bio {
     display: flex;
     flex-direction: column;
@@ -130,11 +128,11 @@
     font-size: 12px;
     font-weight: 400;
     line-height: 28px;
-}
+  }
 }
 
-@media (max-width: 820px){
-.container{
-  width: 95vw;
-}
+@media (max-width: 820px) {
+  .container {
+    width: 95vw;
+  }
 }

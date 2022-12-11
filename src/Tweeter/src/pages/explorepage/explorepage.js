@@ -2,10 +2,8 @@ import React, { useState } from "react";
 import Container from "../../components/container/container";
 import SideBar from "../../components/sidebar/sidebar";
 import HomeContainer from "../../components/homeContainer/homeContainer";
-import SortedTweets from "../../components/sortedtweets/sortedtweets";
 import Header from "../../components/header/header";
 import SearchBox from "../../components/searchbox/searchbox";
-import Feed from "../../components/feed/feed";
 import Explore from "../../components/explore/explore";
 import LinksCard from "../../components/linksCard/linksCard";
 
