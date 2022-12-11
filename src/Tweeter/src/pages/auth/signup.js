@@ -1,5 +1,6 @@
 import React from "react";
 import "./signup.css";
+import Tweeter from "../../Images/snooter.png";
 import Auth from "../../components/auth/auth";
 import Loader from "../../components/loader/loader";
 import { Link } from "react-router-dom";
@@ -40,7 +41,9 @@ class SignupPage extends React.Component {
     return (
       <Auth>
         {this.props.loading ? <Loader /> : null}
+
         <div className="signupPage">
+          <img src={Tweeter} className="tweeterHome" />
           <p>Join thousands of tweeps from around the world </p>
           <p>Happening now. Join today.</p>
           {errorMessage}
