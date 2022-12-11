@@ -13,10 +13,21 @@ let initialState = {
   email: null,
   postedTweet: null,
   port: null,
+  searchUser: true,
 };
 
 const Reducer = (state = initialState, action) => {
   switch (action.type) {
+    case actionTypes.SEARCH_USER:
+      return {
+        ...state,
+        searchUser: true,
+      };
+    case actionTypes.SEARCH_TOPIC:
+      return {
+        ...state,
+        searchUser: false,
+      }
     case actionTypes.AUTH_START:
       return {
         ...state,

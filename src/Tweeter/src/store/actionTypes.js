@@ -1,3 +1,5 @@
+export const SEARCH_USER = "SEARCH_USER";
+export const SEARCH_TOPIC = "SEARCH_TOPIC";
 export const AUTH_SUCCESS = "AUTH_SUCCESS";
 export const AUTH_FAIL = "AUTH_FAILURE";
 export const AUTH_START = "AUTH_START";

@@ -172,14 +172,7 @@ const initializeNode = async (node) => {
         following: [],
         followers: [],
       },
-      posts: [
-        {
-          id: uuidv4(),
-          username: process.argv[2],
-          message: `Hello World, I'm ${curr_username}`,
-          date: new Date().toISOString()
-        },
-      ]
+      posts: []
     }
     node.contentRouting.put(arrayFromString(curr_username), arrayFromString(JSON.stringify(profile)))
   }
@@ -375,6 +368,18 @@ app.get("/profile/:username", async function (req, res) {
 app.get("/timeline", function (req, res) {
   res.status(200)
   res.send(timeline);
+});
+
+app.get("/topic/:topic", async function (req, res) {
+  let topic = req.params.topic;
+  const topicPosts = [];
+  for (let post of timeline) {
+    if (post.topic == topic) {
+      topicPosts.push(post);
+    }
+  }
+  res.status(200);
+  res.send(topicPosts);
 });
 
 app.get('/newSnoots', async function(req, res) {

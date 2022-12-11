@@ -1,6 +1,18 @@
 import axios from "axios";
 import * as actionTypes from "./actionTypes";
 
+export const searchUser = () => {
+  return {
+    type: actionTypes.SEARCH_USER,
+  };
+};
+
+export const searchTopic = () => {
+  return {
+    type: actionTypes.SEARCH_TOPIC,
+  };
+};
+
 export const authStart = () => {
   return {
     type: actionTypes.AUTH_START,

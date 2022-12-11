@@ -11,9 +11,15 @@ const Explore = (props) => {
   const [error, setError] = useState(false);
   const [search, setSearch] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [topicPosts, setTopicPosts] = useState([]);
 
   useEffect(() => {
-    if (keyword !== "") {
+    if (keyword === "") {
+      setUser({});
+      setTopicPosts([]);
+      return;
+    }
+    if (props.searchUser) {
       setLoading(true);
       let url = `http://127.0.0.1:${props.port}/profile/${keyword}`;
       axios({
@@ -36,13 +42,37 @@ const Explore = (props) => {
           }
           setLoading(false);
           });
-    } else {
-      setUser({});
+    }
+    else {
+      setLoading(true);
+      let url = `http://127.0.0.1:${props.port}/topic/${keyword}`;
+      axios({
+        method: "get",
+        url: url,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+        .then((res) =>{
+          setLoading(false);
+          setError(false);
+          setTopicPosts(res.data);
+          console.log(res.data);
+        }
+        )
+        .catch((err) => {
+          if (err.response.status !== 404) {
+            console.log(err)
+            setError(true);
+          }
+          setLoading(false);
+          });
     }
   }, [search]);
 
   useEffect(() => {
     setUser({});
+    setTopicPosts([]);
     setError(false);
     setLoading(false);
   }, []);
@@ -73,7 +103,7 @@ const Explore = (props) => {
             Sorry, an error occured. Please try again.
           </p>
         )}
-        {!loading && !error && Object.keys(user).length === 0 && (
+        {!loading && !error && ((Object.keys(user).length === 0 && props.searchUser) || (topicPosts.length === 0 && !props.searchUser)) && (
           <p style={{ display: "flex", justifyContent: "center" }}>
             No results found.
           </p>
@@ -94,7 +124,7 @@ const Explore = (props) => {
               saved={post.saved}
             />
           ))*/}
-        {!loading && Object.keys(user).length !== 0 &&
+        {!loading && Object.keys(user).length !== 0 && props.searchUser &&
           (
             <Bio
               _bio={user?.bio}
@@ -103,7 +133,17 @@ const Explore = (props) => {
               _username={user.username}
             />
           )}
-          {console.log(user)}
+        {!loading && topicPosts.length !== 0 && !props.searchUser &&
+          (
+            topicPosts.map((post, index) => (
+              <Post
+                user={post.username}
+                datetime={post.date}
+                caption={post.message}
+                key={index}
+              />
+            ))
+          )}
       </section>
     </div>
   );
@@ -113,6 +153,7 @@ const mapStateToProps = (state) => {
   return {
     token: state.token,
     port: state.port,
+    searchUser: state.searchUser,
   };
 };
 

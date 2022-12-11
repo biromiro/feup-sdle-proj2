@@ -3,21 +3,34 @@ import "./linksCard.css";
 import { NavLink } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { connect } from "react-redux";
+import { useState } from "react";
+import * as actionTypes from "../../store/actionTypes";
+import * as actions from "../../store/action";
+import { act } from "react-dom/test-utils";
+
 
 const LinksCard = (props) => {
+  
   let userId = useParams().user_id;
   if (typeof userId === "undefined") {
     userId = props.userId;
   }
+  console.log(props.searchUser);
 
   return (
     <div className="linkCard">
-      <NavLink className="link" to={'/explore'}/*to={`/profile/${userId}`}*/>
-        Users
-      </NavLink>
-      <NavLink exact className="link" to={'/explore'}/*to={`/profile/retweets/${userId}`}*/>
-        Topics
-      </NavLink>
+      <input
+        type='button'
+        className={'link' + (props.searchUser ? ' active' : '')}
+        value='User'
+        onClick={() => props.onSetUser()}
+        key='User'/>
+      <input
+        type='button'
+        className={'link' + (props.searchUser ? '' : ' active')}
+        value='Topics'
+        onClick={() => props.onSetTopic()}
+        key='Topics'/>
     </div>
   );
 };
@@ -28,7 +41,16 @@ const mapStateToProps = (state) => {
     bio: state.bio,
     token: state.token,
     userId: state.userId,
+    searchUser: state.searchUser,
+    onSearchChange: state.onSearchChange
   };
 };
 
-export default connect(mapStateToProps, null)(LinksCard);
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onSetUser: () => dispatch(actions.searchUser()),
+    onSetTopic: () => dispatch(actions.searchTopic()),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(LinksCard);
