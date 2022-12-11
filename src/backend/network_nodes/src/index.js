@@ -214,6 +214,9 @@ const initializeNode = async (node) => {
       profile = dht_profile
       saveProfileLocally()
     }
+    for (let post of profile.posts) {
+      snootHandler(post)
+    }
     for (const following of profile.profile_info.following) {
       node.pubsub.subscribe(following)
     }
