@@ -65,6 +65,7 @@ class Feed extends React.Component {
           <Post
             user={post.username}
             caption={post.message}
+            topic={post.topic}
             image={post.post_urls ? post.post_urls[0] : null}
             comments={post.comments}
             retweets={post.retweets}

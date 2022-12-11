@@ -90,6 +90,12 @@ class CreateTweet extends Component {
     });
   };
 
+  handleNewTopic = (event) => {
+    this.setState({
+      tweet: { ...this.state.tweet, topic: event.target.value },
+    });
+  }
+
   handleKeyDown(e) {
     e.target.style.height = "inherit";
     e.target.style.height = `${e.target.scrollHeight}px`;
@@ -109,6 +115,13 @@ class CreateTweet extends Component {
         ) : null}
         <div className="createTweet">
           <p>Tweet something</p>
+          <textarea
+                id="tweetTopic"
+                placeholder="On this topic..."
+                className="tweetBox"
+                onChange={this.handleNewTopic}
+                maxLength="50"
+                />
           <div className="newtweetInput">
             <img className="posterImage" src={this.props.imageURL ? this.props.imageURL : UserImage} />
             <div className="tweetbox">
