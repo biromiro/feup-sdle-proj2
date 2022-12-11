@@ -10,10 +10,10 @@ import { toString as arrayToString } from "uint8arrays/to-string";
 import { mdns } from '@libp2p/mdns'
 import { pubsubPeerDiscovery } from '@libp2p/pubsub-peer-discovery'
 import fs from 'fs'
+import nodeTest from 'node:test'
 
 const provider_info_channel = `__$provider_info_${process.argv[2]}__`
 const bootstrapVals = JSON.parse(fs.readFileSync(`./keys/${process.argv[2]}.json`, 'utf8'));
-
 const peerID = await createFromJSON(bootstrapVals.peerID)
 
 const bootstrap = await createLibp2p({
@@ -33,10 +33,10 @@ const bootstrap = await createLibp2p({
   pubsub: gossipsub({ allowPublishToZeroPeers: true }),
   dht: kadDHT({ enabled: true, randomWalk: { enabled: true } }),
   peerDiscovery:[
-    mdns({
+    /*mdns({
       interval: 1000,
       enabled: true
-    }),
+    }),*/
     pubsubPeerDiscovery({
       interval: 1000,
     })
