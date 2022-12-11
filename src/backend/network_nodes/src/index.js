@@ -30,6 +30,7 @@ const provider_info_channels = ['__$provider_info_1__','__$provider_info_2__','_
 let profile = undefined
 let timeline = []
 let newSnoots = []
+let isInitialized = false
 
 const getCID = async (data) => {
   const bytes = json.encode({ username: data })
@@ -105,10 +106,10 @@ const createNode = (bootstrapers) => {
     ],
     pubsub: gossipsub({ allowPublishToZeroPeers: true, emitSelf: true }),
     peerDiscovery: [
-      mdns({
+      /*mdns({
         interval: 1000,
         enabled: true
-      }),
+      }),*/
       bootstrap({
         interval: 60e3,
         list: bootstrapers
@@ -144,9 +145,17 @@ const genNode = async () => {
   return node
 }
 
-const initializeNode = async (node) => {
+const initAsProvider = async (node) => {
+  // Wait for onConnect handlers in the DHT
+  await delay(5000)
+
   const curr_cid = await getCID(curr_username)
   await setUpProviders([curr_cid])
+}
+    
+
+const initializeNode = async (node) => {
+  await setUpEventListeners()
   try {
     const dht_profile = await node.contentRouting.get(arrayFromString(curr_username))
     console.log("Profile already exists in DHT")
@@ -237,14 +246,16 @@ await node.start()
 
 console.log(`Node started with id: ${node.peerId.toString()}`)
 
-await setUpEventListeners()
-// Wait for onConnect handlers in the DHT
-await delay(5000)
+initializeNode(node).then(async () => {
+  console.log("Node initialized")
+  isInitialized = true
+  await initAsProvider(node)
+})
 
-await initializeNode(node)
 const app = express();
 const maddress = node.getMultiaddrs().at(-1).nodeAddress()
 const port = maddress.port
+
 app.set('port', port+10);
 app.use(bodyParser.json())
 app.use(cors())
@@ -253,6 +264,12 @@ app.get("/", function (req, res) {
 });
 
 app.put("/follow/:username", function (req, res) {
+  if (!isInitialized) {
+    res.status(404)
+    res.send("Node not initialized");
+    return
+  }
+  
   let username = req.params.username;
   if (profile.profile_info.following.includes(username)) {
     res.status(404)
@@ -280,6 +297,12 @@ app.put("/follow/:username", function (req, res) {
 });
 
 app.put("/unfollow/:username", function (req, res) {
+  if (!isInitialized) {
+    res.status(404)
+    res.send("Node not initialized");
+    return
+  }
+
   let username = req.params.username;
   if (!profile.profile_info.following.includes(username)) {
     res.status(404)
@@ -306,6 +329,12 @@ app.put("/unfollow/:username", function (req, res) {
 });
 
 app.post("/snoot", function (req, res) {
+  if (!isInitialized) {
+    res.status(404)
+    res.send("Node not initialized");
+    return
+  }
+
   const data = req.body;
   console.log(data)
   if (data.message == null) {
@@ -349,6 +378,12 @@ app.get("/timeline", function (req, res) {
 });
 
 app.get('/newSnoots', async function(req, res) {
+  if (!isInitialized) {
+    res.status(404)
+    res.send("Node not initialized");
+    return
+  }
+  
   if (newSnoots.length !== 0)
     console.log("Sent new Snoots")
   res.status(200)
